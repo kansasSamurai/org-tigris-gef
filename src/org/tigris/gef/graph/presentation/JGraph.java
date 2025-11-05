@@ -91,11 +91,12 @@ public class JGraph extends JPanel implements Cloneable, AdjustmentListener,
 
     private Dimension defaultSize = new Dimension(6000, 6000);
 
-    private Hashtable _viewPortPositions = new Hashtable();
+    private Hashtable<String, Rectangle> _viewPortPositions = new Hashtable<>();
 
     private String _currentDiagramId = null;
 
     private ZoomAction zoomOut = new ZoomAction(0.9);
+
     private ZoomAction zoomIn = new ZoomAction(1.1);
 
     // //////////////////////////////////////////////////////////////
@@ -160,7 +161,7 @@ public class JGraph extends JPanel implements Cloneable, AdjustmentListener,
 
         validate();
 
-        Collection layerManagerContent = ed.getLayerManager().getContents();
+        Collection<?> layerManagerContent = ed.getLayerManager().getContents();
         if (layerManagerContent != null) {
             updateDrawingSizeToIncludeAllFigs(Collections
                     .enumeration(layerManagerContent));
@@ -321,7 +322,7 @@ public class JGraph extends JPanel implements Cloneable, AdjustmentListener,
      * Enlarges the JGraphInternalPane dimensions as necessary to insure that
      * all the contained Figs are visible.
      */
-    protected void updateDrawingSizeToIncludeAllFigs(Enumeration iter) {
+    protected void updateDrawingSizeToIncludeAllFigs(Enumeration<?> iter) {
         if (iter == null) {
             return;
         }
@@ -514,18 +515,19 @@ public class JGraph extends JPanel implements Cloneable, AdjustmentListener,
      * Select a collection of Figs.
      * @deprecated in GEF 0.13.1 use select(Collection<DiagramElement>);
      */
-    public void select(Vector items) {
+    public void select(Vector<?> items) {
         editor.getSelectionManager().select(items);
     }
 
     
     /** Toggle the selection of a collection of Figs. */
-    public void toggleItems(Vector items) {
+    public void toggleItems(Vector<?> items) {
         editor.getSelectionManager().toggle(items);
     }
 
     /** reply a Vector of all selected Figs. Used in many Cmds. */
-    public Vector selectedFigs() {
+    @SuppressWarnings("deprecation")
+    public Vector<?> selectedFigs() {
         return editor.getSelectionManager().getFigs();
     }
 

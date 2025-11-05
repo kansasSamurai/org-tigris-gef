@@ -31,6 +31,7 @@ import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Line2D;
@@ -63,32 +64,37 @@ import org.tigris.gef.util.Localizer;
 
 /**
  * This class is the base class for basic drawing objects such as rectangles,
- * lines, text, circles, etc. Also, class FigGroup implements a composite
- * figure. Fig's are Diagram elements that can be placed in any LayerDiagram.
+ * lines, text, circles, etc. Also, class FigGroup implements a composite figure. 
+ * <p>
+ * Fig's are Diagram elements that can be placed in any LayerDiagram.
  * Fig's are also used to define the look of FigNodes on NetNodes.
  */
+@SuppressWarnings("deprecation")
 public abstract class Fig implements DiagramElement, Cloneable,
         java.io.Serializable, PropertyChangeListener, PopupGenerator {
+
+    private static final long serialVersionUID = 1L;
 
     /** The smallest size that the user can drag this Fig. */
     public static final int MIN_SIZE = 4;
 
-    /** The size of the dashes drawn when the Fig is dashed. */
     private static final String[] DASHED_CHOICES = { "Solid", "Dashed",
             "LongDashed", "Dotted", "DotDash" };
 
+    /** The size of the dashes drawn when the Fig is dashed. */
     private static final float[][] DASH_ARRAYS = { null, { 5.0f, 5.0f },
-            { 15.0f, 5.0f }, { 3.0f, 10.0f }, { 3.0f, 6.0f, 10.0f, 6.0f } }; // opaque,
+            { 15.0f, 5.0f }, { 3.0f, 10.0f }, { 3.0f, 6.0f, 10.0f, 6.0f } };
 
-    // transparent,
-    // [opaque,
-    // transparent]
-    private static final int[] DASH_PERIOD = { 0, 10, 20, 13, 25, }; // the
+    // the sum of each subarray
+    private static final int[] DASH_PERIOD = { 0, 10, 20, 13, 25, }; 
 
-    // sum
-    // of
-    // each
-    // subarray
+    private static final RenderingHints RENDERING_HINTS = new RenderingHints(null);
+    static {
+        RENDERING_HINTS.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        RENDERING_HINTS.put(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+        RENDERING_HINTS.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        RENDERING_HINTS.put(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+    }
 
     /**
      * Indicates whether this fig can be moved
@@ -123,36 +129,32 @@ public abstract class Fig implements DiagramElement, Cloneable,
     private transient Object owner;
 
     /**
-     * X coordinate of the Fig's bounding box. It is the responsibility of
-     * subclasses to make sure this value is ALWAYS up-to-date.
-     * 
-     * @deprecated in 0.13.4 use getX, getBounds or getLocation.
+     * X coordinate of the Fig's bounding box. 
+     * <p>
+     * It is the responsibility of subclasses to make sure this value is ALWAYS up-to-date.
      */
-    protected int _x;
+    private int _x;
 
     /**
-     * Y coordinate of the Fig's bounding box. It is the responsibility of
-     * subclasses to make sure this value is ALWAYS up-to-date.
-     * 
-     * @deprecated in 0.13.4 use getY, getBounds or getLocation.
+     * Y coordinate of the Fig's bounding box. 
+     * <p>
+     * It is the responsibility of subclasses to make sure this value is ALWAYS up-to-date.
      */
-    protected int _y;
+    private int _y;
 
     /**
-     * Width of the Fig's bounding box. It is the responsibility of subclasses
-     * to make sure this value is ALWAYS up-to-date.
-     * 
-     * @deprecated in 0.13.4 use getWidth, getBounds or getSize.
+     * Width of the Fig's bounding box. 
+     * <p>
+     * It is the responsibility of subclasses to make sure this value is ALWAYS up-to-date.
      */
-    protected int _w;
+    private int _w;
 
     /**
-     * Height of the Fig's bounding box. It is the responsibility of subclasses
-     * to make sure this value is ALWAYS up-to-date.
-     * 
-     * @deprecated in 0.13.4 use getWidth, getBounds or getSize.
+     * Height of the Fig's bounding box. 
+     * <p>
+     * It is the responsibility of subclasses to make sure this value is ALWAYS up-to-date.
      */
-    protected int _h;
+    private int _h;
 
     /**
      * Name of the resource being basis to this figs localization.
@@ -161,17 +163,13 @@ public abstract class Fig implements DiagramElement, Cloneable,
 
     /**
      * Outline color of fig object.
-     * 
-     * @deprecated in 0.13.4 use getLineColor/setLineColor.
      */
-    Color _lineColor = Color.black;
+    private Color _lineColor = Color.black;
 
     /**
      * Fill color of fig object.
-     * 
-     * @deprecated in 0.13.4 use getFillColor/setFillColor.
      */
-    Color _fillColor = Color.white;
+    private Color _fillColor = Color.white;
 
     /**
      * Thickness of object's border. This is included in the overall size of the
@@ -199,10 +197,8 @@ public abstract class Fig implements DiagramElement, Cloneable,
 
     /**
      * True if the object should fill in its area.
-     * 
-     * @deprecated will become private use getLineWidth()
      */
-    protected boolean _filled = true;
+    private boolean _filled = true;
 
     /**
      * The parent Fig of which this Fig is a child
@@ -222,8 +218,8 @@ public abstract class Fig implements DiagramElement, Cloneable,
     protected boolean _allowsSaving = true;
 
     /**
-     * @deprecated by mvw in GEF0.13.1M2. Use SelectionManager instead. See
-     *             issue 146. This value is never set.
+     * @deprecated by mvw in GEF0.13.1M2. Use SelectionManager instead. 
+     * See issue 146. This value is never set.
      * */
     private transient boolean _selected = false;
 
@@ -419,7 +415,7 @@ public abstract class Fig implements DiagramElement, Cloneable,
      * Updates the positions of the connected annotations.
      */
     final public void updateAnnotationPositions() {
-        Enumeration annotations = getAnnotationStrategy().getAllAnnotations();
+        Enumeration<?> annotations = getAnnotationStrategy().getAllAnnotations();
         while (annotations.hasMoreElements()) {
             Fig annotation = (Fig) annotations.nextElement();
             getAnnotationStrategy().storeAnnotationPosition(annotation);
@@ -522,8 +518,10 @@ public abstract class Fig implements DiagramElement, Cloneable,
     }
 
     /**
-     * Update the bounds of this Fig. By default it is assumed that the bounds
-     * have already been updated, so this does nothing.
+     * Update the bounds of this Fig. 
+     * <p>
+     * By default it is assumed that the bounds have already been updated, 
+     * so this does nothing.
      * 
      * @see FigText#calcBounds
      */
@@ -598,7 +596,7 @@ public abstract class Fig implements DiagramElement, Cloneable,
      * needs-more-work: define gravity points, berths
      */
     public Point connectionPoint(Point anotherPt) {
-        List grav = getGravityPoints();
+        List<?> grav = getGravityPoints();
         if (grav != null && grav.size() > 0) {
             int ax = anotherPt.x;
             int ay = anotherPt.y;
@@ -780,8 +778,7 @@ public abstract class Fig implements DiagramElement, Cloneable,
         visible = false;
 
         // delete all annotations first
-        java.util.Enumeration iter = getAnnotationStrategy()
-                .getAllAnnotations();
+        Enumeration<?> iter = getAnnotationStrategy().getAllAnnotations();
         while (iter.hasMoreElements()) {
             Fig annotation = (Fig) iter.nextElement();
             getAnnotationStrategy().getAnnotationProperties(annotation)
@@ -840,6 +837,35 @@ public abstract class Fig implements DiagramElement, Cloneable,
     // }
     // }
     //
+
+    /**
+     * A convenience method for figures to use high quality rendering.
+     * <p>
+     * It **does** work and I have no problem keeping this approach but...
+     * as I learn more about the rendering process of GEF, it might prove
+     * more efficient to simply set these rendering hints at the
+     * beginning of a draw/paint operation and let the graphics 
+     * instance be passed along the rendering pipeline.
+     * <p>
+     * p.s.  For some reason, ArgoUML makes high quality rendering optional.
+     * While I can see this for the early days of Java, I doubt there has 
+     * been a real performance reason for quite a long time so I see no
+     * need to NOT make high quality rendering the norm.
+     * 
+     * @since 0.14-SNAPSHOT (2025)
+     * @param g
+     * @return
+     */
+    protected Graphics2D g2Create(Graphics2D g) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHints(RENDERING_HINTS);
+
+        return g2;
+    }
+
+    protected Graphics2D g2Create(Graphics g) {
+        return g2Create((Graphics2D)g);
+    }
 
     public void drawRect(final Graphics g, final boolean filled,
             final Color fillColor, final int lineWidth, final Color lineColor,
@@ -1040,8 +1066,7 @@ public abstract class Fig implements DiagramElement, Cloneable,
     final public void firePropChange(String propName, Object oldV, Object newV) {
         Globals.firePropChange(this, propName, oldV, newV);
         if (group != null) {
-            PropertyChangeEvent pce = new PropertyChangeEvent(this, propName,
-                    oldV, newV);
+            PropertyChangeEvent pce = new PropertyChangeEvent(this, propName, oldV, newV);
             group.propertyChange(pce);
         }
     }
@@ -1114,7 +1139,7 @@ public abstract class Fig implements DiagramElement, Cloneable,
         return (_dashes == null) ? DASHED_CHOICES[0] : DASHED_CHOICES[1];
     }
 
-    public Vector getEnclosedFigs() {
+    public Vector<?> getEnclosedFigs() {
         return null;
     }
 
@@ -1127,6 +1152,7 @@ public abstract class Fig implements DiagramElement, Cloneable,
 
     /**
      * Does this Fig support the concept of "fill color" in principle
+     * TODO refactor/deprecate this for a better name:  canFillColor
      * 
      * @return true if the Fig can be filled
      */
@@ -1197,7 +1223,7 @@ public abstract class Fig implements DiagramElement, Cloneable,
      * 
      * @return the list of gravity points.
      */
-    public List getGravityPoints() {
+    public List<?> getGravityPoints() {
         return null;
     }
 
@@ -1246,12 +1272,12 @@ public abstract class Fig implements DiagramElement, Cloneable,
             if (getGroup() instanceof FigGroup) {
                 return gID
                         + "."
-                        + ((List) ((FigGroup) getGroup()).getFigs())
+                        + ((List<?>) ((FigGroup) getGroup()).getFigs())
                                 .indexOf(this);
             } else if (getGroup() instanceof FigEdge) {
                 return gID
                         + "."
-                        + (((List) ((FigEdge) getGroup()).getPathItemFigs())
+                        + (((List<?>) ((FigEdge) getGroup()).getPathItemFigs())
                                 .indexOf(this) + 1);
             } else {
                 return gID + ".0";
@@ -1263,7 +1289,7 @@ public abstract class Fig implements DiagramElement, Cloneable,
             return "LAYER_NULL";
         }
 
-        List c = (List) layer.getContents();
+        List<?> c = (List<?>) layer.getContents();
         int index = c.indexOf(this);
         return "Fig" + index;
     }
@@ -1330,12 +1356,16 @@ public abstract class Fig implements DiagramElement, Cloneable,
         return null;
     }
 
+    /**
+     * Cannot (yet?) refactor to Vector<Menu> because of 
+     * ArgoUML FigNodeModelElement override.  
+     * More research needed.
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public Vector getPopUpActions(MouseEvent me) {
-        Vector popUpActions = new Vector();
-        JMenu orderMenu = new JMenu(Localizer.localize("PresentationGef",
-                "Ordering"));
-        orderMenu.setMnemonic((Localizer.localize("PresentationGef",
-                "OrderingMnemonic")).charAt(0));
+        Vector popUpActions = new Vector<>();
+        JMenu orderMenu = new JMenu(Localizer.localize("PresentationGef", "Ordering"));
+        orderMenu.setMnemonic((Localizer.localize("PresentationGef", "OrderingMnemonic")).charAt(0));
         orderMenu.add(CmdReorder.BringForward);
         orderMenu.add(CmdReorder.SendBackward);
         orderMenu.add(CmdReorder.BringToFront);
@@ -1652,8 +1682,10 @@ public abstract class Fig implements DiagramElement, Cloneable,
     }
 
     /**
-     * Set the bounds of this Fig. Fires PropertyChangeEvent "bounds". This
-     * method can be undone by performing UndoAction.
+     * Set the bounds of this Fig. 
+     * <p>
+     * Fires PropertyChangeEvent "bounds". 
+     * This method can be undone by performing UndoAction.
      */
     final public void setBounds(final int newX, final int newY,
             final int newWidth, final int newHeight) {
@@ -1696,7 +1728,37 @@ public abstract class Fig implements DiagramElement, Cloneable,
         setBoundsImpl(newX, newY, newWidth, newHeight);
     }
 
-    /** Set the bounds of this Fig. Fires PropertyChangeEvent "bounds". */
+    /**
+     * Provided to replace legacy code that simply had direct access
+     * to properties _x, _y, ...
+     * <p>
+     * It may eventually be best to simply use the version that fires the
+     * change event but I do not know enough about this framework to full
+     * understand if there are adverse affects when doing so.
+     * 
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     */
+    protected void setBoundsNoEvent(Rectangle r) {
+        _x = r.x;
+        _y = r.y;
+        _w = r.width;
+        _h = r.height;
+    }
+
+    protected void setBoundsNoEvent(int x, int y, int w, int h) {
+        _x = x;
+        _y = y;
+        _w = w;
+        _h = h;
+    }
+
+    /** Set the bounds of this Fig.
+     * <p>
+     * Fires PropertyChangeEvent "bounds". 
+     */
     protected void setBoundsImpl(int x, int y, int w, int h) {
         Rectangle oldBounds = getBounds();
         _x = x;
@@ -1707,8 +1769,9 @@ public abstract class Fig implements DiagramElement, Cloneable,
     }
 
     /**
-     * Change my bounding box to the given Rectangle. Just calls setBounds(x, y,
-     * w, h).
+     * Change my bounding box to the given Rectangle. 
+     * <p>
+     * Just calls setBounds(x, y, w, h).
      */
     public final void setBounds(Rectangle r) {
         setBounds(r.x, r.y, r.width, r.height);
@@ -1874,6 +1937,7 @@ public abstract class Fig implements DiagramElement, Cloneable,
     }
 
     public void setPoint(int i, int x, int y) {
+        // hmmmmmm, why was this empty all along?  either a bug and/or unfinished feature I suppose.
     }
 
     final public void setPoint(int i, Point p) {
@@ -1937,15 +2001,20 @@ public abstract class Fig implements DiagramElement, Cloneable,
     }
 
     /**
-     * Set the X co-ordinate of the Fig.
+     * Set the X coordinate of the Fig.
      * <p>
-     * Use this method only if the X property is the only bounds property of the
-     * Fig you wish to amend. If you intend to also change the Y co ordinate use
-     * setLocation(int x, int y). If you also intend to amend the width and/or
-     * height use setBounds(int x, int y, int width, int height). Calling a
-     * single method will be far more efficient in changing bounds.
+     * ONLY use this method if the X property is the only 
+     * bounds property that you wish to amend.
+     * <p> 
+     * If you also intend to change the Y coordinate use:<br>
+     * setLocation(int x, int y)
+     * <p>
+     * If you also intend to amend the width and/or height use:<br> 
+     * setBounds(int x, int y, int width, int height)
+     * <p>
+     * Calling a single method will be far more efficient in changing bounds.
      * 
-     * @param x The new x co-ordinate
+     * @param x The new x coordinate
      */
     final public void setX(int x) {
         setBounds(x, _y, _w, _h);
@@ -1955,7 +2024,7 @@ public abstract class Fig implements DiagramElement, Cloneable,
     }
 
     /**
-     * Set the Y co-ordinate of the Fig.
+     * Set the Y coordinate of the Fig.
      * <p>
      * Use this method only if the Y property is the only bounds property of the
      * Fig you wish to amend. If you intend to also change the X co ordinate use
@@ -2069,7 +2138,13 @@ public abstract class Fig implements DiagramElement, Cloneable,
         Rectangle oldBounds = getBounds();
         _x += dx;
         _y += dy;
+        // dont calcBounds because _w and _h are unchanged
         firePropChange("bounds", oldBounds, getBounds());
+    }
+
+    protected void translateNoEvent(int dx, int dy) {
+        _x += dx;
+        _y += dy;
     }
 
     /**

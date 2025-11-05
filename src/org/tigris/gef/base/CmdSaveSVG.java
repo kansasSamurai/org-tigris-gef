@@ -27,6 +27,7 @@
 package org.tigris.gef.base;
 
 import java.awt.Rectangle;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -37,9 +38,6 @@ import org.tigris.gef.persistence.*;
  */
 public class CmdSaveSVG extends CmdSaveGraphics {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -713862282696505691L;
 
     public CmdSaveSVG() {
@@ -58,6 +56,11 @@ public class CmdSaveSVG extends CmdSaveGraphics {
             ce.print(writer);
             writer.dispose();
         }
+    }
+
+    @Override
+    public boolean accept(File dir, String name) {
+        return true;
     }
 
 } /* end class CmdSaveSVG */

@@ -40,25 +40,28 @@ import org.tigris.gef.util.*;
  * A window that displays a toolbar, a connected graph editing pane, and a
  * status bar.
  */
+public class JGraphFrame extends JFrame 
+    implements IStatusBar, Cloneable, ModeChangeListener {
 
-public class JGraphFrame extends JFrame implements IStatusBar, Cloneable,
-        ModeChangeListener {
-
-    private static final long serialVersionUID = -8167010467922210977L;
     /** The toolbar (shown at top of window). */
     private ToolBar _toolbar = new PaletteFig();
+
     /** The graph pane (shown in middle of window). */
     private JGraph _graph;
+
     /** A statusbar (shown at bottom ow window). */
     private JLabel _statusbar = new JLabel(" ");
 
     private JPanel _mainPanel = new JPanel(new BorderLayout());
+
     private JPanel _graphPanel = new JPanel(new BorderLayout());
+
     private JMenuBar _menubar = new JMenuBar();
 
+    private static final long serialVersionUID = -8167010467922210977L;
+
     /**
-     * Contruct a new JGraphFrame with the title "untitled" and a new
-     * DefaultGraphModel.
+     * Contruct a new JGraphFrame with the title "untitled" and a new DefaultGraphModel.
      */
     public JGraphFrame() {
         this("untitled");
@@ -66,13 +69,13 @@ public class JGraphFrame extends JFrame implements IStatusBar, Cloneable,
 
     public JGraphFrame(boolean init_later) {
         super("untitled");
+
         if (!init_later)
             init(new JGraph());
     }
 
     /**
-     * Contruct a new JGraphFrame with the given title and a new
-     * DefaultGraphModel.
+     * Contruct a new JGraphFrame with the given title and a new DefaultGraphModel.
      */
     public JGraphFrame(String title) {
         this(title, new JGraph());
@@ -83,11 +86,22 @@ public class JGraphFrame extends JFrame implements IStatusBar, Cloneable,
     }
 
     /**
-     * Contruct a new JGraphFrame with the given title and given JGraph. All
-     * JGraphFrame contructors call this one.
+     * Contruct a new JGraphFrame with the title "untitled" and the given GraphModel.
+     */
+    public JGraphFrame(GraphModel gm) {
+        this("untitled");
+
+        setGraphModel(gm);
+    }
+
+    /**
+     * Contruct a new JGraphFrame with the given title and given JGraph. 
+     * <p>
+     * All JGraphFrame contructors call this one.
      */
     public JGraphFrame(String title, JGraph jg) {
         super(title);
+
         init(jg);
     }
 
@@ -97,10 +111,13 @@ public class JGraphFrame extends JFrame implements IStatusBar, Cloneable,
 
     public void init(JGraph jg) {
         _graph = jg;
+
         Container content = getContentPane();
+
         setUpMenus();
         content.setLayout(new BorderLayout());
         content.add(_menubar, BorderLayout.NORTH);
+
         _graphPanel.add(_graph, BorderLayout.CENTER);
         _graphPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
 
@@ -108,24 +125,17 @@ public class JGraphFrame extends JFrame implements IStatusBar, Cloneable,
         _mainPanel.add(_graphPanel, BorderLayout.CENTER);
         content.add(_mainPanel, BorderLayout.CENTER);
         content.add(_statusbar, BorderLayout.SOUTH);
-        setSize(300, 250);
-        _graph.addModeChangeListener(this);
-    }
 
-    /**
-     * Contruct a new JGraphFrame with the title "untitled" and the given
-     * GraphModel.
-     */
-    public JGraphFrame(GraphModel gm) {
-        this("untitled");
-        setGraphModel(gm);
+        setSize(300, 250);
+
+        _graph.addModeChangeListener(this);
     }
 
     // //////////////////////////////////////////////////////////////
     // Cloneable implementation
 
     public Object clone() {
-        return null; // needs-more-work
+        return null; // needs-more-work (only if anyone has a viable need to use this)
     }
 
     // //////////////////////////////////////////////////////////////
@@ -192,7 +202,10 @@ public class JGraphFrame extends JFrame implements IStatusBar, Cloneable,
     /**
      * Set up the menus and keystrokes for menu items. Subclasses can override
      * this, or you can use setMenuBar().
+     * <p>
+     * Note:  Many of the Cmd*** classes have been superceded for Action classes.
      */
+    @SuppressWarnings("deprecation")
     protected void setUpMenus() {
         JMenuItem openItem, saveItem, printItem, exitItem;
         JMenuItem deleteItem, copyItem, pasteItem;
@@ -210,8 +223,7 @@ public class JGraphFrame extends JFrame implements IStatusBar, Cloneable,
         CmdPrint cmdPrint = new CmdPrint();
         printItem = file.add(cmdPrint);
         file.add(new CmdPrintPageSetup(cmdPrint));
-        file.add(new CmdOpenWindow("org.tigris.gef.base.PrefsEditor",
-                "Preferences..."));
+        file.add(new CmdOpenWindow("org.tigris.gef.base.PrefsEditor", "Preferences..."));
         // file.add(new CmdClose());
         exitItem = file.add(new CmdExit());
 
@@ -280,8 +292,7 @@ public class JGraphFrame extends JFrame implements IStatusBar, Cloneable,
         align.add(new AlignAction(AlignAction.ALIGN_V_CENTERS));
         align.add(new AlignAction(AlignAction.ALIGN_TO_GRID));
 
-        JMenu distribute = new JMenu(Localizer
-                .localize("GefBase", "Distribute"));
+        JMenu distribute = new JMenu(Localizer.localize("GefBase", "Distribute"));
         arrange.add(distribute);
         distribute.add(new DistributeAction(DistributeAction.H_SPACING));
         distribute.add(new DistributeAction(DistributeAction.H_CENTERS));
@@ -371,4 +382,5 @@ public class JGraphFrame extends JFrame implements IStatusBar, Cloneable,
         if (_statusbar != null)
             _statusbar.setText(msg);
     }
+
 } /* end class JGraphFrame */

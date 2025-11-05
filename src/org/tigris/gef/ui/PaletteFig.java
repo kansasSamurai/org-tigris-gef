@@ -41,12 +41,12 @@ import org.tigris.gef.base.ModeCreateFigText;
 import org.tigris.gef.base.ModeSelect;
 
 /**
- * A Palette that defines buttons to create lines, rectangles, rounded
- * rectangles, circles, and text. Also a select button is provided to switch
- * back to ModeSelect.
- * 
- * Needs-more-work: sticky mode buttons are not supported right now. They should
- * be in the next release.
+ * A Palette that defines buttons to create lines, 
+ * rectangles, rounded rectangles, circles, and text. 
+ * Also a select button is provided to switch back to ModeSelect.
+ * <p>
+ * Needs-more-work: sticky mode buttons are not supported right now. 
+ * They should be in the next release.
  * 
  * @see ModeSelect
  * @see ModeCreateFigLine
@@ -57,11 +57,9 @@ import org.tigris.gef.base.ModeSelect;
  * @see ModeCreateFigPoly
  */
 
+@SuppressWarnings("deprecation")
 public class PaletteFig extends ToolBar {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 304194274216578087L;
 
     public PaletteFig() {
@@ -69,11 +67,12 @@ public class PaletteFig extends ToolBar {
     }
 
     /**
-     * Defined the buttons in this palette. Each of these buttons is associated
-     * with an CmdSetMode, and that Cmd sets the next global Mode to somethign
-     * appropriate. All the buttons can stick except 'select'. If the user
-     * unclicks the sticky checkbox, the 'select' button is automatically
-     * pressed.
+     * Defined the buttons in this palette. 
+     * <p>
+     * Each of these buttons is associated with a CmdSetMode, and 
+     * that Cmd sets the next global Mode to something appropriate. 
+     * All the buttons can stick except 'select'. If the user unclicks 
+     * the sticky checkbox, the 'select' button is automatically pressed.
      */
     public void defineButtons() {
         add(new CmdSetMode(ModeSelect.class, "Select"));
@@ -88,4 +87,5 @@ public class PaletteFig extends ToolBar {
         add(new CmdSetMode(ModeCreateFigSpline.class, "Spline"));
         add(new CmdSetMode(ModeCreateFigInk.class, "Ink"));
     }
+
 } /* end class PaletteFig */

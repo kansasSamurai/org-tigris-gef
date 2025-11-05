@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+
 <!--
    Copyright (c) 1996-2014 The Regents of the University of California. All
    Rights Reserved. Permission to use, copy, modify, and distribute this
@@ -25,17 +25,22 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
+  <name>GEF</name>
+  <packaging>jar</packaging>
+  <url>http://gef.tigris.org</url>
+
+  <!-- This version was 0.13.9M1 when I first forked it. -->
   <groupId>org.tigris.gef</groupId>
   <artifactId>gef</artifactId>
-  <packaging>jar</packaging>
-  <name>GEF</name>
-  <version>0.13.9M1</version>
-  <url>http://gef.tigris.org</url>
+  <version>0.14-SNAPSHOT</version>
+
   <properties>
     <version>${project.version}</version>
     <commons-logging.version>1.1.1</commons-logging.version>
     <junit.version>4.11</junit.version>
   </properties>
+
   <dependencies>
     <dependency>
       <groupId>commons-logging</groupId>
@@ -77,8 +82,8 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
       </plugin>
       <plugin>

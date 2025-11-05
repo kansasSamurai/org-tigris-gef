@@ -45,12 +45,10 @@ import org.tigris.gef.util.ResourceLoader;
  * Abstract class for all editor commands.
  * <p>
  * The editor serves as a command shell for executing actions in much the same
- * way that a DOS or UNIX commmand command shell executes programs. Each command
- * can have a Hashtable of "command-line" arguments and also look at global
- * variables (its environment). Once an instance of a Cmd is made, it can be
- * sent the doIt() and undoIt() messages to perform that action.
- * </p>
- * 
+ * way that a DOS or UNIX commmand command shell executes programs. 
+ * Each command can have a Hashtable of "command-line" arguments and also 
+ * look at global variables (its environment). Once an instance of a Cmd is 
+ * made, it can be sent the doIt() and undoIt() messages to perform that action.
  * <p>
  * Since this is subclassed from class AbstractAction in the Swing user
  * interface library, Cmd objects can be easily added to menus and toolbars.
@@ -60,23 +58,34 @@ import org.tigris.gef.util.ResourceLoader;
  * </p>
  */
 
-public abstract class Cmd extends AbstractAction implements
-        java.io.Serializable {
+public abstract class Cmd extends AbstractAction 
+    implements java.io.Serializable {
 
-    // Arguments that configure the Cmd instance.
     /**
      * @deprecated in 0.13 will become private use getArg()
      */
-    protected Hashtable _args;
-    
+    protected Hashtable<Object, Object> _args;
+
+    protected Hashtable<Object, Object> getAllArgs() {
+        return _args;
+    }
+
     /**
      * @deprecated in 0.13 will become private use getResource()
      */
     protected String _resource;
 
+    private static final long serialVersionUID = 1L;
+
     /** Construct a new Cmd with the given arguments */
-    public Cmd(Hashtable args, String resource, String name) {
+
+    public Cmd(String resource, String name) {
+        this(null, resource, name);
+    }
+
+    public Cmd(Hashtable<Object, Object> args, String resource, String name) {
         super(Localizer.localize(resource, name));
+
         Icon icon = ResourceLoader.lookupIconResource(name, name);
         if (icon != null) {
             putValue(Action.SMALL_ICON, icon);
@@ -85,12 +94,9 @@ public abstract class Cmd extends AbstractAction implements
         _resource = resource;
     }
 
-    public Cmd(String resource, String name) {
-        this(null, resource, name);
-    }
-
-    public Cmd(Hashtable args, String resource, String name, ImageIcon icon) {
+    public Cmd(Hashtable<Object, Object> args, String resource, String name, ImageIcon icon) {
         super(Localizer.localize(resource, name), icon);
+
         _args = args;
         _resource = resource;
     }
@@ -100,12 +106,12 @@ public abstract class Cmd extends AbstractAction implements
         this(null, "GefBase", name);
     }
 
-    protected Cmd(Hashtable args, String name, ImageIcon icon) {
-        this(args, "GefBase", name, icon);
+    protected Cmd(Hashtable<Object, Object> args, String name) {
+        this(args, "GefBase", name);
     }
 
-    protected Cmd(Hashtable args, String name) {
-        this(args, "GefBase", name);
+    protected Cmd(Hashtable<Object, Object> args, String name, ImageIcon icon) {
+        this(args, "GefBase", name, icon);
     }
 
     // //////////////////////////////////////////////////////////////
@@ -174,7 +180,7 @@ public abstract class Cmd extends AbstractAction implements
     /** Store the given argument under the given name. */
     protected void setArg(String key, Object value) {
         if (_args == null) {
-            _args = new Hashtable();
+            _args = new Hashtable<Object, Object>();
         }
         _args.put(key, value);
     }
@@ -188,8 +194,8 @@ public abstract class Cmd extends AbstractAction implements
     // Cmd API
 
     /**
-     * Return a URL that has user and programmer documentation. <A
-     * HREF="../features.html#view_Cmd_documentation">
+     * Return a URL that has user and programmer documentation. 
+     * <A HREF="../features.html#view_Cmd_documentation">
      * <TT>FEATURE: view_Cmd_documentation</TT></A>
      */
     public String about() {
@@ -201,8 +207,10 @@ public abstract class Cmd extends AbstractAction implements
     }
 
     /**
-     * Perform whatever Cmd this Cmd is meant to do. Subclasses should override
-     * this to do whatever is intended. When the Cmd executes, it should store
+     * Perform whatever Cmd this Cmd is meant to do. 
+     * <p>
+     * Subclasses MUST override this to do whatever is intended. 
+     * When the Cmd executes, it should store
      * enough information to undo itself later if needed.
      */
     public abstract void doIt();
@@ -230,7 +238,7 @@ public abstract class Cmd extends AbstractAction implements
      * it should eventually go in the user interface. TODO Does this really
      * belong in GEF?
      */
-    private static Vector _registeredCmds = new Vector();
+    private static Vector<Cmd> _registeredCmds = new Vector<>();
 
     /**
      * Return a list of "well-known" Cmd instances that should appear in lists
@@ -238,7 +246,7 @@ public abstract class Cmd extends AbstractAction implements
      * 
      * @see CmdOpenWindow
      */
-    public static Enumeration registeredCmds() {
+    public static Enumeration<Cmd> registeredCmds() {
         return _registeredCmds.elements();
     }
 
@@ -256,4 +264,5 @@ public abstract class Cmd extends AbstractAction implements
     public static Cmd cmdAtIndex(int i) {
         return (Cmd) _registeredCmds.elementAt(i);
     }
+
 } /* end class Cmd */

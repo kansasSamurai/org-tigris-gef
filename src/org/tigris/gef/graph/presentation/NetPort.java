@@ -35,10 +35,13 @@ import org.tigris.gef.graph.GraphModel;
 import org.tigris.gef.graph.GraphPortHooks;
 
 /**
- * This class models a port in our underlying connected graph model. A port is
- * place on a node where an edge can connect. For example, the power socket in a
- * wall, ot the power cord socket on the back of a computer. This class is used
- * by the DefaultGraphModel. You can also define your own GraphModel that uses
+ * This class models a port in our underlying connected graph model. 
+ * <p>
+ * This class is used by the DefaultGraphModel.<br>
+ * A port is place on a node where an edge can connect. 
+ * Analagous to, the power socket in a wall, or 
+ * the power cord socket on the back of a computer. 
+ * You can also define your own GraphModel that uses
  * your own application-specific objects as ports.
  */
 
@@ -53,15 +56,11 @@ public class NetPort extends NetPrimitive implements GraphPortHooks,
     // //////////////////////////////////////////////////////////////
     // instance variables
 
-    /**
-     * The NetEdges that are connected to this port.
-     */
-    private Vector edges;
+    /** The NetEdges that are connected to this port. */
+    private Vector<NetEdge> edges;
 
-    /**
-     * The NetNode that this port is a part of.
-     */
-    private Object _parent;
+    /** The NetNode that contains this port. */
+    private NetNode _parent;
 
     private static Log LOG = LogFactory.getLog(NetPort.class);
 
@@ -69,9 +68,9 @@ public class NetPort extends NetPrimitive implements GraphPortHooks,
     // constructors
 
     /** Construct a new NetPort with the given parent node and no arcs. */
-    public NetPort(Object parent) {
+    public NetPort(NetNode parent) {
         _parent = parent;
-        edges = new Vector();
+        edges = new Vector<NetEdge>();
     }
 
     // //////////////////////////////////////////////////////////////
@@ -86,16 +85,16 @@ public class NetPort extends NetPrimitive implements GraphPortHooks,
         return (NetNode) _parent;
     }
 
-    public NetEdge getParentEdge() {
-        return (NetEdge) _parent;
-    }
+//    public NetEdge getParentEdge() {
+//        return (NetEdge) _parent;
+//    }
 
-    public Object getParent() {
+    public NetNode getParent() {
         return _parent;
     }
 
     /** Reply a vector of NetEdges that are connected here. */
-    public Vector getEdges() {
+    public Vector<NetEdge> getEdges() {
         return edges;
     }
 
@@ -167,7 +166,7 @@ public class NetPort extends NetPrimitive implements GraphPortHooks,
      * reply the java Class to be used to make new arcs. This is a utility
      * function called from NetPort#makeEdgeFor
      */
-    protected Class defaultEdgeClass(NetPort otherPort) {
+    protected Class<?> defaultEdgeClass(NetPort otherPort) {
         try {
             return Class.forName(DEFAULT_EDGE_CLASS);
         } catch (java.lang.ClassNotFoundException ignore) {
@@ -177,13 +176,13 @@ public class NetPort extends NetPrimitive implements GraphPortHooks,
 
     /** reply a new NetEdge from this port to the given NetPort. */
     public NetEdge makeEdgeFor(NetPort otherPort) {
-        Class edgeClass;
-        NetEdge edge;
-        edgeClass = defaultEdgeClass(otherPort);
+        Class edgeClass = defaultEdgeClass(otherPort);
         if (edgeClass == null) {
             LOG.error("defaultEdgeClass is null");
             return null;
         }
+
+        NetEdge edge;
         try {
             edge = (NetEdge) edgeClass.newInstance();
         } catch (java.lang.IllegalAccessException e) {
@@ -193,6 +192,7 @@ public class NetPort extends NetPrimitive implements GraphPortHooks,
             LOG.error("Failed to create edge ", e);
             return null;
         }
+
         LOG.debug("Made edge " + edge.getClass().getName());
         return edge;
     }
@@ -202,6 +202,7 @@ public class NetPort extends NetPrimitive implements GraphPortHooks,
 
     /**
      * Reply true if this port can legally be connected to the given port.
+     * <p>
      * Subclasses may implement this to reflect application specific connection
      * constraints. By default, each port just defers that decision to its
      * parent NetNode. By convention, your implementation should return false if
@@ -213,4 +214,5 @@ public class NetPort extends NetPrimitive implements GraphPortHooks,
         NetNode otherNode = ((NetPort) anotherPort).getParentNode();
         return myNode.canConnectTo(gm, otherNode, anotherPort, this);
     }
+
 } /* end class NetPort */

@@ -72,11 +72,15 @@ public abstract class FigEdge extends Fig implements Highlightable, GraphEdge {
     @Deprecated
     protected Vector<PathItem> _pathItems = new Vector<PathItem>();
 
+    private static final long serialVersionUID = 1L;
+
     private class PathItem implements java.io.Serializable {
 
-        private static final long serialVersionUID = -5298572087861993804L;
         final Fig _fig;
+
         final private PathItemPlacementStrategy pathItemPlacementStrategy;
+
+        private static final long serialVersionUID = -5298572087861993804L;
 
         PathItem(final Fig f, final PathConv pc) {
             _fig = f;
@@ -100,8 +104,8 @@ public abstract class FigEdge extends Fig implements Highlightable, GraphEdge {
             return _fig;
         }
 
+        @SuppressWarnings("unused")
         final public void paint() {
-
         }
     }
 
@@ -161,10 +165,11 @@ public abstract class FigEdge extends Fig implements Highlightable, GraphEdge {
             res.add(f.getBounds());
         }
 
-        _x = res.x;
-        _y = res.y;
-        _w = res.width;
-        _h = res.height;
+        setBoundsNoEvent(res);
+//        _x = res.x;
+//        _y = res.y;
+//        _w = res.width;
+//        _h = res.height;
     }
 
     final public void cleanUp() {
@@ -358,15 +363,15 @@ public abstract class FigEdge extends Fig implements Highlightable, GraphEdge {
     }
 
     /** Return all figs of the path items */
-    final public Vector getPathItemFigs() {
-        Vector figs = new Vector();
+    final public Vector<Fig> getPathItemFigs() {
+        Vector<Fig> figs = new Vector<Fig>();
         for (int i = 0; i < _pathItems.size(); i++) {
             figs.add(getPathItemFig((PathItem) _pathItems.elementAt(i)));
         }
 
         return figs;
     }
-    
+
     /**
      * Gets the PathItemPlacementStrategy for the given fig.
      * The given fig must be one of the pathItem figs, otherwise null will be
@@ -393,7 +398,7 @@ public abstract class FigEdge extends Fig implements Highlightable, GraphEdge {
      * 
      * @deprecated use getPathItems
      */
-    final public Vector getPathItemsRaw() {
+    final public Vector<PathItem> getPathItemsRaw() {
         return _pathItems;
     }
 
@@ -507,7 +512,7 @@ public abstract class FigEdge extends Fig implements Highlightable, GraphEdge {
     }
 
     final public Fig hitFig(Rectangle r) {
-        Enumeration iter = _pathItems.elements();
+        Enumeration<PathItem> iter = _pathItems.elements();
         Fig res = null;
         if (routeFig.hit(r)) {
             res = routeFig;
@@ -615,7 +620,7 @@ public abstract class FigEdge extends Fig implements Highlightable, GraphEdge {
 
     /** Paint any labels that are located relative to this FigEdge. */
     final protected void paintPathItems(Graphics g) {
-        Vector pathVec = getPathItemsRaw();
+        Vector<PathItem> pathVec = getPathItemsRaw();
         for (int i = 0; i < pathVec.size(); i++) {
             PathItem element = (PathItem) pathVec.elementAt(i);
             // PathConv path = element.getPath();
@@ -630,7 +635,7 @@ public abstract class FigEdge extends Fig implements Highlightable, GraphEdge {
 
     /** Paint any labels that are located relative to this FigEdge. */
     final protected void appendSvgPathItems(StringBuffer sb) {
-        Vector pathVec = getPathItemsRaw();
+        Vector<PathItem> pathVec = getPathItemsRaw();
         for (int i = 0; i < pathVec.size(); i++) {
             PathItem element = (PathItem) pathVec.elementAt(i);
             Fig f = element.getFig();

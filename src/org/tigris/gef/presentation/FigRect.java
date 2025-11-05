@@ -30,6 +30,7 @@ package org.tigris.gef.presentation;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.io.Serializable;
 
 /**
@@ -38,6 +39,11 @@ import java.io.Serializable;
 public class FigRect extends Fig implements Serializable {
 
     private static final long serialVersionUID = -6171328584588911037L;
+
+    /** Construct a new resizable FigRect with the given position and size. */
+    public FigRect(Rectangle r) {
+        this(r.x, r.y, r.width, r.height);
+    }
 
     /** Construct a new resizable FigRect with the given position and size. */
     public FigRect(
@@ -93,6 +99,7 @@ public class FigRect extends Fig implements Serializable {
     // painting methods
 
     /** Paint this FigRect */
+    @SuppressWarnings("deprecation")
     public void paint(final Graphics g) {
         drawRect(
                 g, 

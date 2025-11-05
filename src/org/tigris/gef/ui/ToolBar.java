@@ -37,11 +37,22 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Vector;
 
+/**
+ * 
+ *
+ */
+@SuppressWarnings("deprecation")
 public class ToolBar extends JToolBar implements MouseListener {
-    protected Vector _lockable = new Vector();
-    protected Vector _modeButtons = new Vector();
+
+    protected Vector<JButton> _lockable = new Vector<>();
+
+    protected Vector<JButton> _modeButtons = new Vector<>();
+
     private static final Color selectedBack = new Color(153, 153, 153);
+
     private static final Color buttonBack = new Color(204, 204, 204);
+
+    private static final long serialVersionUID = 1L;
 
     public ToolBar() {
         setFloatable(false);
@@ -67,24 +78,6 @@ public class ToolBar extends JToolBar implements MouseListener {
     }
 
     public JButton add(Action a, String name, Icon icon) {
-        // JButton b = new JButton(icon);
-        // if (a instanceof CmdSetMode || a instanceof CmdCreateNode)
-        // _modeButtons.addElement(b);
-        // b.setToolTipText(name + " ");
-        // b.setEnabled(a.isEnabled());
-        // b.addActionListener(a);
-        // add(b);
-        // if (a instanceof CmdSetMode || a instanceof CmdCreateNode)
-        // _lockable.addElement(b);
-        // PropertyChangeListener actionPropertyChangeListener =
-        // createActionChangeListener(b);
-        // if ( actionPropertyChangeListener != null ) {
-        // a.addPropertyChangeListener(actionPropertyChangeListener);
-        // }
-        // b.addMouseListener(this);
-        // // needs-more-work: should buttons appear stuck down while action
-        // executes?
-        // return b;
 
         JButton b = super.add(a);
         b.setName(null);
@@ -139,11 +132,12 @@ public class ToolBar extends JToolBar implements MouseListener {
         return b;
     }
 
-    public JToggleButton addToggle(Action a, String name, String upRes,
-            String downRes) {
+    public JToggleButton addToggle(Action a, String name, String upRes, String downRes) {
         ImageIcon upIcon = ResourceLoader.lookupIconResource(upRes, name);
         ImageIcon downIcon = ResourceLoader.lookupIconResource(downRes, name);
+
         JToggleButton b = new JToggleButton(upIcon);
+        b.setPressedIcon(downIcon);
         b.setToolTipText(name + " ");
         b.setEnabled(a.isEnabled());
         b.addActionListener(a);
@@ -156,8 +150,9 @@ public class ToolBar extends JToolBar implements MouseListener {
         return b;
     }
 
-    public ButtonGroup addRadioGroup(String name1, ImageIcon oneUp,
-            ImageIcon oneDown, String name2, ImageIcon twoUp, ImageIcon twoDown) {
+    public ButtonGroup addRadioGroup(String name1, ImageIcon oneUp, ImageIcon oneDown, 
+            String name2, ImageIcon twoUp, ImageIcon twoDown) {
+
         JRadioButton b1 = new JRadioButton(oneUp, true);
         b1.setSelectedIcon(oneDown);
         b1.setToolTipText(name1 + " ");
@@ -172,13 +167,6 @@ public class ToolBar extends JToolBar implements MouseListener {
 
         add(b1);
         add(b2);
-
-        // JPanel p = new JPanel();
-        // p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        // p.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
-        // p.add(b1);
-        // p.add(b2);
-        // add(p);
 
         ButtonGroup bg = new ButtonGroup();
         bg.add(b1);

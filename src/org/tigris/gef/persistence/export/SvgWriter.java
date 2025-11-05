@@ -49,10 +49,8 @@ import java.io.UnsupportedEncodingException;
 @Deprecated
 public class SvgWriter extends Graphics {
 
-    /**
-     * 
-     */
     private static class Utf8Writer {
+
         private OutputStreamWriter _writer;
 
         public Utf8Writer(OutputStream out) {
@@ -60,9 +58,7 @@ public class SvgWriter extends Graphics {
             try {
                 _writer = new OutputStreamWriter(out, "UTF-8");
             } catch (UnsupportedEncodingException e) {
-                System.err
-                        .println("[SVGWriter] UTF-8 not supported. Switching to default."
-                                + e);
+                System.err.println("[SVGWriter] UTF-8 not supported. Switching to default." + e);
                 _writer = new OutputStreamWriter(out);
             }
         }
@@ -347,6 +343,7 @@ public class SvgWriter extends Graphics {
      * 
      * @return The current background color.
      */
+    @SuppressWarnings("unused")
     private Color getBackgroundColor() {
         return _bgColor;
     }
@@ -368,6 +365,7 @@ public class SvgWriter extends Graphics {
      * @param c
      *                The new background color.
      */
+    @SuppressWarnings("unused")
     private void setBackgroundColor(Color c) {
         _bgColor = c;
     }
@@ -499,8 +497,8 @@ public class SvgWriter extends Graphics {
                 getBackgroundColorAsString(), "1");
     }
 
-    private void writeEllipsePath(int x, int y, int w, int h, int startAngle,
-            int arcAngle) {
+    @SuppressWarnings("unused")
+    private void writeEllipsePath(int x, int y, int w, int h, int startAngle, int arcAngle) {
 
         /*
          * p.println("newpath"); int dx = w/2, dy = h/2; writeCoords(x + dx, y +

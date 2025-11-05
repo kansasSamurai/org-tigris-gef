@@ -47,10 +47,10 @@ public class NetList extends NetPrimitive implements java.io.Serializable {
     // instance variables
 
     /** The nodes in the NetList */
-    private ArrayList nodes = new ArrayList();
+    private ArrayList<NetNode> nodes = new ArrayList<>();
 
     /** The edges in the NetList */
-    private ArrayList edges = new ArrayList();
+    private ArrayList<NetEdge> edges = new ArrayList<>();
 
     /** The name of this connected graph. */
     String name;
@@ -80,21 +80,21 @@ public class NetList extends NetPrimitive implements java.io.Serializable {
     /**
      * Reply the vector of nodes
      */
-    public List getNodes() {
+    public List<NetNode> getNodes() {
         return nodes;
     }
 
     /**
      * Reply the vector of edges
      */
-    public List getEdges() {
+    public List<NetEdge> getEdges() {
         return edges;
     }
 
     /** Reply the vector of nodes */
-    public Collection getNodes(Collection c) {
+    public Collection<NetNode> getNodes(Collection<NetNode> c) {
         if (c == null) {
-            return new Vector(nodes);
+            return new Vector<NetNode>(nodes);
         } else {
             c.addAll(nodes);
             return c;
@@ -102,9 +102,9 @@ public class NetList extends NetPrimitive implements java.io.Serializable {
     }
 
     /** Reply the vector of edges */
-    public Collection getEdges(Collection c) {
+    public Collection<NetEdge> getEdges(Collection<NetEdge> c) {
         if (c == null) {
-            return new Vector(edges);
+            return new Vector<NetEdge>(edges);
         } else {
             c.addAll(edges);
             return c;

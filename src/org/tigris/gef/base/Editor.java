@@ -58,13 +58,13 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * This class provides an editor for manipulating graphical documents. The
- * editor is the central class of the graph editing framework, but it does not
+ * This class provides an editor for manipulating graphical documents. 
+ * <p>
+ * The editor is the central class of the graph editing framework, but it does not
  * contain very much code. It can be this small because all the net-level
  * models, graphical objects, layers, editor modes, editor commands, and
  * supporting dialogs and frames are implemented in their own classes.
  * <p>
- * 
  * An Editor's LayerManager has a stack of Layers. Normally Layers contain
  * Figs. Some Figs are linked to NetPrimitives. When Figs are selected the
  * SelectionManager holds a Selection object. The behaviour of the Editor is
@@ -73,11 +73,10 @@ import java.util.List;
  * the state of the diagram. The Editor acts as a shell for executing Commands
  * that modify the document or the Editor itself.
  * <p>
- * 
  * When Figs change visible state (e.g. color, size, or position) they tell
  * their Layer that they are damageAll and need to be repainted. The Layer tells
  * all Editors that are editing the Fig.
- * 
+ * <p>
  * A major goal of GEF is to make it easy to extend the framework for
  * application to a specific domain. It is very important that new functionality
  * can be added without modifying what is already there. The fairly small size
@@ -147,19 +146,13 @@ public class Editor implements Serializable, MouseListener,
     /** The grid to snap points to. */
     protected Guide _guide = new GuideGrid(8);
 
-    /**
-     * The Fig that the mouse is in.
-     */
+    /** The Fig that the mouse is in. */
     private Fig _curFig = null;
 
-    /**
-     * The Selection object that the mouse is in.
-     */
+    /** The Selection object that the mouse is in. */
     private Selection _curSel = null;
 
-    /**
-     * The scale at which to draw the diagram
-     */
+    /** The scale at which to draw the diagram */
     private double _scale = 1.0;
 
     /** Should elements in this editor be selectable? */
@@ -177,9 +170,7 @@ public class Editor implements Serializable, MouseListener,
     /** The height of the swing panel before scaling. */
     private transient int _naturalComponentHeight;
 
-    /**
-     * The ancestor of _jComponent that has a peer that can create an image.
-     */
+    /** The ancestor of _jComponent that has a peer that can create an image. */
     private transient Component _peer_component = null;
 
     private RenderingHints _renderingHints = new RenderingHints(null);
@@ -227,7 +218,7 @@ public class Editor implements Serializable, MouseListener,
         _renderingHints.put(RenderingHints.KEY_FRACTIONALMETRICS,
                 RenderingHints.VALUE_FRACTIONALMETRICS_ON);
         _renderingHints.put(RenderingHints.KEY_RENDERING,
-                RenderingHints.VALUE_RENDER_SPEED);
+                RenderingHints.VALUE_RENDER_QUALITY);
     }
 
     protected void defineLayers(GraphModel gm, Layer lay) {
@@ -434,8 +425,7 @@ public class Editor implements Serializable, MouseListener,
     }
 
     /** Temp var used to implement hit() without doing memory allocation. */
-    protected static Rectangle _hitRect = new Rectangle(0, 0, GRIP_SIZE,
-            GRIP_SIZE);
+    protected static Rectangle _hitRect = new Rectangle(0, 0, GRIP_SIZE, GRIP_SIZE);
 
     /**
      * Reply the top Fig in the current layer that contains the given point.
@@ -669,8 +659,8 @@ public class Editor implements Serializable, MouseListener,
     }
 
     /**
-     * Find the AWT Frame that this Editor is being displayed in. This is needed
-     * to open a dialog box.
+     * Find the AWT Frame that this Editor is being displayed in. 
+     * This is needed to open a dialog box.
      */
     public Frame findFrame() {
         Component c = jComponent;
@@ -680,12 +670,11 @@ public class Editor implements Serializable, MouseListener,
     }
 
     /**
-     * Create an Image (an off-screen bit-map) to be used to reduce flicker in
-     * redrawing.
+     * Create an Image (an off-screen bit-map) to be used to 
+     * reduce flicker when redrawing.
      * <p>
-     * 
-     * The image is also useable for other purposes, e.g. to put a bitmap of a
-     * diagram on the system clipboard.
+     * The image is also useable for other purposes, 
+     * e.g. to put a bitmap of a diagram on the system clipboard.
      */
     public Image createImage(int w, int h) {
         if (jComponent == null)

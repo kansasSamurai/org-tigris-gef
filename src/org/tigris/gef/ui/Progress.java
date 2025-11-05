@@ -50,11 +50,14 @@ import java.awt.event.*;
  * advance() every so often. Eventually, the number of advance() calls should
  * equal the total amount of work specified in the constructor call.
  * 
- * @deprecated in 0.11.1 this class is not used in GEF. Applications would do
- *             better to use the standard swing JProgressBar
+ * @deprecated in 0.11.1 this class is not used in GEF. 
+ *     Applications would do better to use the standard swing JFrame and JProgressBar
+ *     (new ProgressFrame implementation pending)
  */
 
 public class Progress extends Frame implements ActionListener {
+
+    private static final long serialVersionUID = 1L;
 
     /** Total work to be done. */
     private int _total;
@@ -243,7 +246,8 @@ public class Progress extends Frame implements ActionListener {
             } catch (java.lang.InterruptedException ignore) {
             }
         }
-        _p.setVisible(false);
-        _p.dispose();
+        // _p.setVisible(false);
+        // _p.dispose();
     }
+
 } /* end class Progress */

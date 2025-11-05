@@ -28,11 +28,25 @@
 
 package org.tigris.gef.properties.ui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Event;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  * A window that displays a tabbed Property Sheet user interface with one tab
@@ -46,40 +60,54 @@ import javax.swing.event.*;
  * objects.
  */
 
-public class TabPropFrame extends JFrame implements ChangeListener,
-        ActionListener {
+public class TabPropFrame extends JFrame implements ChangeListener, ActionListener {
+
+    private static final long serialVersionUID = 1L;
+
     // //////////////////////////////////////////////////////////////
     // instance variables
 
     private PropSheet _lastPropSheet = null;
+
+    @SuppressWarnings("unused")
     private int _lastTab = -1;
 
     /** The collection of PropSheets shown in this frame. */
-    private Vector _sheets = new Vector();
+    // private Vector _sheets = new Vector();
+    private List<PropSheet> _sheets = new ArrayList<>();
 
     // {{DECLARE_CONTROLS
     // private symantec.itools.awt.TabPanel tabPanel;
     private JTabbedPane tabPanel;
+
     // private Panel tabPanel;
-    private Panel choicePanel;
+
+    // Not used but there is also abandoned comments which include this so keeping.
+    // private Panel choicePanel;
+
     private PropSheetCategory PropSheetCategory1;
     private PropSheetCategory PropSheetCategory2;
     private PropSheetCategory PropSheetCategory3;
     private PropSheetCategory PropSheetCategory4;
     private PropSheetCategory PropSheetCategory5;
     private JPanel buttonPanel;
+
     /**
      * <A HREF="../features.html#property_sheet_auto_apply">
      * <TT>FEATURE: property_sheet_auto_apply</TT></A>
      */
     private JCheckBox autoApplyCheckbox;
+
     private JButton applyButton;
+
     /**
      * <A HREF="../features.html#property_sheet_revert">
      * <TT>FEATURE: property_sheet_revert</TT></A>
      */
     private JButton revertButton;
+
     private JButton closeButton;
+
     // // private java.awt.Choice universeChoice;
     // }}
 
@@ -87,6 +115,7 @@ public class TabPropFrame extends JFrame implements ChangeListener,
     // }}
 
     // // private Vector _universe = new Vector();
+
     protected Object _selection = null;
 
     // //////////////////////////////////////////////////////////////
@@ -97,8 +126,7 @@ public class TabPropFrame extends JFrame implements ChangeListener,
         getContentPane().setLayout(new BorderLayout(0, 0));
         addNotify();
         Insets insets = getInsets();
-        setSize(insets.left + insets.right + 300, insets.top + insets.bottom
-                + 406);
+        setSize(insets.left + insets.right + 300, insets.top + insets.bottom + 406);
         getContentPane().setFont(new Font("Dialog", Font.PLAIN, 10));
         getContentPane().setBackground(new Color(12632256));
         tabPanel = new JTabbedPane();
@@ -125,8 +153,7 @@ public class TabPropFrame extends JFrame implements ChangeListener,
         PropSheetCategory5.setBounds(12, 33, 276, 307);
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-        buttonPanel.setBounds(getInsets().left + 0, getInsets().top + 375, 300,
-                31);
+        buttonPanel.setBounds(getInsets().left + 0, getInsets().top + 375, 300, 31);
         getContentPane().add(buttonPanel, BorderLayout.SOUTH);
         autoApplyCheckbox = new JCheckBox("AutoApply");
         autoApplyCheckbox.setBounds(66, 5, 78, 21);
@@ -194,30 +221,19 @@ public class TabPropFrame extends JFrame implements ChangeListener,
     /** Reply the PropSheet that is currently shown. */
     public Component getCurrentSheet() {
         return tabPanel.getSelectedComponent();
-        // Component sheet = null;
-        // //int sheetIndex = sheetChoice.getSelectedIndex();
-        // int sheetIndex = tabPanel.getCurrentPanelNdx();
-        // if (sheetIndex >= 0 && sheetIndex < _sheets.size()) {
-        // //sheet = (Component) _sheets.elementAt(sheetIndex);
-        // sheet = tabPanel.getTabPanel(sheetIndex);
-        // }
-        // return sheet;
     }
 
     /** Add a new PropSheet to this window under the name it supplies. */
     public void addPropSheet(PropSheet ps) {
         if (tabPanel == null)
             return;
-        // tabPanel.addTabPanel(ps.getTabName(), ps.canEdit(_selection),
-        // ps);
+
         int i = tabPanel.getTabCount();
         // System.out.println("adding tab, size = " + tabPanel.getTabCount());
         tabPanel.addTab(ps.getTabName(), ps);
         tabPanel.setEnabledAt(i, ps.canEdit(_selection));
-        String curSheetName = ps.getTabName();
-        // tabPanel.add(curSheetName, ps);
-        // sheetChoice.addItem(curSheetName);
-        _sheets.addElement(ps);
+
+        _sheets.add(ps); //   .addElement(ps);
         // Needs-More-Work: no way to disable a choice item in jdk1.0.2
     }
 

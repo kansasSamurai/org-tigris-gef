@@ -48,8 +48,10 @@ import org.tigris.gef.util.Localizer;
 
 /**
  * A Mode to process events from the Editor when the user is modifying a Fig.
- * Right now users can drag one or more Figs around the drawing area, or they
- * can move a handle on a single Fig.
+ * <p>
+ * Right now users can:
+ * 1) drag one or more Figs around the drawing area, or
+ * 2) they can move a handle on a single Fig.
  * 
  * @see Fig
  * @see Selection
@@ -62,6 +64,7 @@ public class ModeModify extends FigModifyingModeImpl {
      * really wants to modify something.
      */
     private static final int MIN_DELTA = 4;
+
     private double degrees45 = Math.PI / 4;
 
     /** drag in process */
@@ -110,20 +113,22 @@ public class ModeModify extends FigModifyingModeImpl {
     // event handlers
 
     /**
-     * When the user drags the mouse two things can happen: (1) if the user is
-     * dragging the body of one or more Figs then they are all moved around the
-     * drawing area, or (2) if the user started dragging on a handle of one Fig
-     * then the user can drag the handle around the drawing area and the Fig
-     * reacts to that.
+     * When the user drags the mouse two things can happen: 
+     * (1) if the user is dragging the body of one or more Figs 
+     * then they are all moved around the drawing area, or 
+     * (2) if the user started dragging on a handle of one Fig
+     * then the user can drag the handle around the drawing area 
+     * and the Fig reacts to that.
      */
     public void mouseDragged(MouseEvent mouseEvent) {
         if (mouseEvent.isConsumed()) {
             return;
         }
-
         mouseEvent.consume();
+
         Point p = mouseEvent.getPoint();
         getEditor().snap(p); // only allow movement on snap positions
+
         newMousePosition.x = p.x;
         newMousePosition.y = p.y;
         _deltaMouseX = p.x - dragStartMousePosition.x;
@@ -175,6 +180,7 @@ public class ModeModify extends FigModifyingModeImpl {
      * as arguments. Is also called when control is pressed or released during
      * the drag.
      */
+    @SuppressWarnings("deprecation")
     private void handleMouseDragged(boolean restrict45) {
         int deltaMouseX = _deltaMouseX;
         int deltaMouseY = _deltaMouseY;
@@ -283,16 +289,17 @@ public class ModeModify extends FigModifyingModeImpl {
         me.consume();
         SelectionManager sm = editor.getSelectionManager();
         sm.stopDrag();
-        List figs = sm.getFigs();
+        @SuppressWarnings("deprecation")
+        List<?> figs = sm.getFigs();
         int figCount = figs.size();
         for (int figIndex = 0; figIndex < figCount; ++figIndex) {
             Fig selectedFig = (Fig) figs.get(figIndex);
             if ((selectedFig instanceof FigNode)) {
                 Rectangle bbox = selectedFig.getBounds();
                 Layer lay = selectedFig.getLayer();
-                List otherFigs = lay.getContents();
+                List<?> otherFigs = lay.getContents();
                 Fig encloser = null;
-                Iterator it = otherFigs.iterator();
+                Iterator<?> it = otherFigs.iterator();
                 while (it.hasNext()) {
                     Fig otherFig = (Fig) it.next();
                     if (!(otherFig instanceof FigNode)) {
@@ -367,17 +374,19 @@ public class ModeModify extends FigModifyingModeImpl {
     }
 
     /**
-     * Tests if the drag is legal regarding overlap with the bounds of any
-     * enclosers.
+     * Tests if the drag is legal regarding overlap with the bounds of any enclosers.
+     * 
      * @param dx
      * @param dy
      * @param selectionManager
      * @return
      */
+    @SuppressWarnings("unchecked")
     private boolean legal(int dx, int dy, SelectionManager selectionManager) {
+        System.out.print("e");
         damageHighlightTrap();
-
         _highlightTrap = null;
+
         List<FigNode> draggingFigNodes = getNodes(selectionManager.getDraggableFigs());
         int figCount = draggingFigNodes.size();
         Rectangle figBounds = new Rectangle();
@@ -443,28 +452,33 @@ public class ModeModify extends FigModifyingModeImpl {
 
                     _highlightTrap = trap;
                     damageHighlightTrap();
+
+                    System.out.println("x1");
                     return false;
                 }
             }
             
             if (draggedOntoCanvas) {
-                // If it isn't dragged into any fig but into diagram canvas (null
-                // encloser).
-                if (!((MutableGraphSupport) graphModel).isEnclosable(
-                        ((FigNode) draggedFig).getOwner(), null)) {
-                    return false;
+                // If it isn't dragged into any fig but into diagram canvas (null encloser).
+                if (graphModel != null) { // null check is because of sandbox situation; root cause unknown
+                    if (!((MutableGraphSupport) graphModel).isEnclosable(
+                            ((FigNode) draggedFig).getOwner(), null)) {
+                        System.out.println("x2");
+                        return false;
+                    }
                 }
             } else {
                 // If it is dragged into any fig.
                 if (!((MutableGraphSupport) graphModel).isEnclosable(
                         ((FigNode) draggedFig).getOwner(), ((FigNode) encloser)
                                 .getOwner())) {
+                    System.out.println("x3");
                     return false;
                 }
             }
         }
-        
-        
+
+        System.out.println("x4");
         return true;
     }
     

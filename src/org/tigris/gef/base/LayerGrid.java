@@ -322,25 +322,51 @@ public class LayerGrid extends Layer {
      * 
      * @see org.tigris.gef.base.Layer#adjust(java.util.HashMap)
      */
+    @SuppressWarnings("rawtypes")
     public void adjust(HashMap map) {
         super.adjust(map);
         Object m;
         _stamp = null;
         setHidden(false);
 
-        m = map.get("spacing");
+        m = map.get(PropertyKey.SPACING);
         if (m instanceof Integer)
             _spacing = ((Integer) m).intValue();
 
-        m = map.get("paintLines");
+        m = map.get(PropertyKey.PAINT_LINES);
         if (m instanceof Boolean)
             _paintLines = ((Boolean) m).booleanValue();
 
-        m = map.get("paintDots");
+        m = map.get(PropertyKey.PAINT_DOTS);
         if (m instanceof Boolean)
             _paintDots = ((Boolean) m).booleanValue();
 
         refreshEditors();
+    }
+
+    /**
+     * Gets a HashMap of current values.
+     * <p>
+     * The same HashMap can then be modified and used with adjust(HashMap)
+     * to modify current values.
+     * 
+     * @return
+     */
+    public HashMap<String, Object> getAdjustMap() {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put(PropertyKey.SPACING, _spacing);
+        map.put(PropertyKey.PAINT_DOTS, _paintDots);
+        map.put(PropertyKey.PAINT_LINES, _paintLines);
+        map.put(PropertyKey.COLOR_BG, _bgColor);
+
+        return map;
+    }
+
+    public static class PropertyKey {
+        public static final String SPACING = "spacing";
+        public static final String COLOR_BG = "bgColor";
+        public static final String PAINT_DOTS = "paintDots";
+        public static final String PAINT_LINES = "paintLines";
     }
 
 } /* end class LayerGrid */

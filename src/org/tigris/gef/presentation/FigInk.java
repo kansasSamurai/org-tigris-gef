@@ -29,13 +29,13 @@
 package org.tigris.gef.presentation;
 
 /**
- * Primitive Fig to paint Ink on a LayerDiagram. Ink is like an open polygon
- * with no fill. The main difference between FigInk and FigPoly is in the way
- * that they are created.
+ * Primitive Fig to paint Ink on a LayerDiagram. 
+ * <p>
+ * Ink is like an open polygon with no fill. The main difference between 
+ * FigInk and FigPoly is in the way that they are created.
  * 
  * @see FigPoly
  */
-
 public class FigInk extends FigPoly {
 
     private static final long serialVersionUID = 8099997544376618L;
@@ -43,13 +43,15 @@ public class FigInk extends FigPoly {
     /** Construct a new FigInk w/ the given attributes. */
     public FigInk() {
         super();
-        _filled = false;
+
+        setFilled(false);
     }
 
     /** Construct a new FigInk w/ the given point and attributes. */
     public FigInk(int x, int y) {
         super(x, y);
-        _filled = false;
+
+        setFilled(false);
     }
 
     // //////////////////////////////////////////////////////////////
@@ -70,4 +72,5 @@ public class FigInk extends FigPoly {
     public boolean contains(int x, int y) {
         return super.findHandle(x, y) != -1;
     }
+
 } /* end class FigInk */

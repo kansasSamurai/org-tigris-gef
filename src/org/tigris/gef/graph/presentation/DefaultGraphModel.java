@@ -31,6 +31,7 @@ package org.tigris.gef.graph.presentation;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
@@ -40,10 +41,10 @@ import org.tigris.gef.graph.GraphNodeHooks;
 import org.tigris.gef.graph.MutableGraphSupport;
 
 /**
- * This interface provides a facade to a net-level representation. Similiar in
- * concept to the Swing class TreeModel. This implementation of GraphModel uses
- * the GEF classes NetList, NetNode, NetPort, and NetEdge. If you implement your
- * own GraphModel, you can use your own application-specific classes.
+ * This implementation of GraphModel uses the following GEF classes:<br>
+ * NetList, NetNode, NetPort, and NetEdge. 
+ * <p>
+ * If you implement your own GraphModel, you can use your own application-specific classes.
  * 
  * @see NetList
  * @see NetNode
@@ -55,11 +56,11 @@ import org.tigris.gef.graph.MutableGraphSupport;
 public class DefaultGraphModel extends MutableGraphSupport implements
         java.io.Serializable {
 
-    private static final long serialVersionUID = 8098329898758384131L;
-
     private NetList netList;
 
     private static Log LOG = LogFactory.getLog(DefaultGraphModel.class);
+
+    private static final long serialVersionUID = 8098329898758384131L;
 
     // //////////////////////////////////////////////////////////////
     // constructors
@@ -80,14 +81,16 @@ public class DefaultGraphModel extends MutableGraphSupport implements
     /**
      * Return all nodes in the graph
      */
-    public List getNodes() {
+    @Override
+    public List<NetNode> getNodes() {
         return netList.getNodes();
     }
 
     /**
      * Return all edges in the graph
      */
-    public List getEdges() {
+    @Override
+    public List<NetEdge> getEdges() {
         return netList.getEdges();
     }
 
@@ -122,14 +125,12 @@ public class DefaultGraphModel extends MutableGraphSupport implements
     }
 
     /** Return the node or edge that owns the given port */
-    public Object getOwner(Object port) {
-        if (port instanceof NetPort)
-            return ((NetPort) port).getParent();
-        return null; // raise exception
+    public NetNode getOwner(NetPort port) {
+        return port.getParent();
     }
 
     /** Return all edges going to given port */
-    public List getInEdges(Object port) {
+    public List getInEdges(NetPort port) {
         Vector res = new Vector();
         Vector edge = ((NetPort) port).getEdges();
         for (int i = 0; i < edge.size(); i++) {
@@ -142,9 +143,9 @@ public class DefaultGraphModel extends MutableGraphSupport implements
     }
 
     /** Return all edges going from given port */
-    public List getOutEdges(Object port) {
+    public List<NetEdge> getOutEdges(NetPort port) {
         Vector res = new Vector();
-        Vector edge = ((NetPort) port).getEdges();
+        Vector<NetEdge> edge = port.getEdges();
         for (int i = 0; i < edge.size(); i++) {
             NetEdge ne = (NetEdge) edge.elementAt(i);
             if (ne.getSourcePort() == port) {
@@ -155,24 +156,20 @@ public class DefaultGraphModel extends MutableGraphSupport implements
     }
 
     /** Return one end of an edge */
-    public Object getSourcePort(Object edge) {
-        if (edge instanceof NetEdge)
-            return ((NetEdge) edge).getSourcePort();
-        return null; // raise exception
+    public NetPort getSourcePort(NetEdge edge) {
+        return edge.getSourcePort();
     }
 
     /** Return the other end of an edge */
-    public Object getDestPort(Object edge) {
-        if (edge instanceof NetEdge)
-            return ((NetEdge) edge).getDestPort();
-        return null; // raise exception
+    public NetPort getDestPort(NetEdge edge) {
+        return edge.getDestPort();
     }
 
     // //////////////////////////////////////////////////////////////
     // interface MutableGraphListener
 
     /** Return a valid node in this graph */
-    public Object createNode(String name, Hashtable args) {
+    public NetNode createNode(String name, Hashtable args) {
         Object newNode;
         // Class nodeClass = (Class) getArg("className", DEFAULT_NODE_CLASS);
         // assert _nodeClass != null
@@ -188,36 +185,34 @@ public class DefaultGraphModel extends MutableGraphSupport implements
 
         if (newNode instanceof GraphNodeHooks)
             ((GraphNodeHooks) newNode).initialize(args);
-        return newNode;
+        return (NetNode) newNode;
     }
 
     /** Return true if the given object is a valid node in this graph */
-    public boolean canAddNode(Object node) {
+    public boolean canAddNode(NetNode node) {
         return (node instanceof NetNode);
     }
 
     /** Return true if the given object is a valid edge in this graph */
-    public boolean canAddEdge(Object edge) {
+    public boolean canAddEdge(NetEdge edge) {
         return (edge instanceof NetEdge);
     }
 
     /** Remove the given node from the graph. */
-    public void removeNode(Object node) {
-        NetNode n = (NetNode) node;
-        netList.removeNode(n);
+    public void removeNode(NetNode node) {
+        netList.removeNode(node);
         LOG.debug("Removed node from graph model");
         super.removeNode(node);
     }
 
     /** Return true if dragging the given object is a valid in this graph */
-    public boolean canDragNode(Object node) {
+    public boolean canDragNode(NetNode node) {
         return (node instanceof NetNode);
     }
 
     /** Add the given node to the graph, if valid. */
-    public void addNode(Object node) {
-        NetNode n = (NetNode) node;
-        netList.addNode(n);
+    public void addNode(NetNode node) {
+        netList.addNode(node);
         if (LOG.isDebugEnabled()) {
             LOG.debug("Added a node. There are now "
                     + netList.getNodes(null).size() + " edges");
@@ -226,8 +221,7 @@ public class DefaultGraphModel extends MutableGraphSupport implements
     }
 
     /** Add the given edge to the graph, if valid. */
-    public void addEdge(Object edge) {
-        NetEdge e = (NetEdge) edge;
+    public void addEdge(NetEdge e) {
         netList.addEdge(e);
         if (LOG.isDebugEnabled()) {
             LOG.debug("Added an edge. There are now "
@@ -236,15 +230,14 @@ public class DefaultGraphModel extends MutableGraphSupport implements
         super.addEdge(e);
     }
 
-    public void addNodeRelatedEdges(Object node) {
+    public void addNodeRelatedEdges(NetNode node) {
     }
 
     /** Remove the given edge from the graph. */
-    public void removeEdge(Object edge) {
+    public void removeEdge(NetEdge edge) {
         LOG.debug("DefaultGraphModel::removeEdge");
-        NetEdge e = (NetEdge) edge;
-        netList.removeEdge(e);
-        super.removeEdge(e);
+        netList.removeEdge(edge);
+        super.removeEdge(edge);
     }
 
     /** Remove all the nodes from the graph. */
@@ -268,7 +261,7 @@ public class DefaultGraphModel extends MutableGraphSupport implements
         super.removeAll();
     }
 
-    public void dragNode(Object node) {
+    public void dragNode(NetNode node) {
         addNode(node);
     }
 
@@ -276,7 +269,7 @@ public class DefaultGraphModel extends MutableGraphSupport implements
      * Return true if the two given ports can be connected by a kind of edge to
      * be determined by the ports.
      */
-    public boolean canConnect(Object srcPort, Object destPort) {
+    public boolean canConnect(NetPort srcPort, NetPort destPort) {
         if (srcPort instanceof NetPort && destPort instanceof NetPort) {
             NetPort s = (NetPort) srcPort;
             NetPort d = (NetPort) destPort;
@@ -290,8 +283,8 @@ public class DefaultGraphModel extends MutableGraphSupport implements
         }
     }
 
-    /** Contruct and add a new edge of a kind determined by the ports */
-    public Object connect(Object srcPort, Object destPort) {
+    /** Construct and add a new edge of a kind determined by the ports */
+    public NetEdge connect(NetPort srcPort, NetPort destPort) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Attempting to connect " + srcPort + " to " + destPort);
         }
@@ -311,15 +304,16 @@ public class DefaultGraphModel extends MutableGraphSupport implements
     }
 
     /**
-     * Contruct and add a new edge of the given kind The default is to assume
-     * the edge type is a Class.
+     * Construct and add a new edge of the given kind.
+     * The default is to assume the edge type is a Class.
      */
-    public Object connect(Object srcPort, Object destPort, Object edgeType) {
-        return connect(srcPort, destPort, (Class) edgeType);
+    public NetEdge connect(NetPort srcPort, NetPort destPort, Object edgeType) {
+        return connect(srcPort, destPort, edgeType);
     }
 
-    /** Contruct and add a new edge of the given kind */
-    public Object connect(Object srcPort, Object destPort, Class edgeClass) {
+    /** Construct and add a new edge of the given kind */
+    @SuppressWarnings("rawtypes")
+    public NetEdge connect(NetPort srcPort, NetPort destPort, Class edgeClass) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Attempting to connect " + srcPort + " to " + destPort
                     + " with " + edgeClass);
@@ -352,8 +346,7 @@ public class DefaultGraphModel extends MutableGraphSupport implements
      *                edge
      * @return the edge or null if the edge rejects the connection.
      */
-    protected Object connectInternal(NetPort s, NetPort d, NetEdge e) {
-        // System.out.println("connectInternal");
+    protected NetEdge connectInternal(NetPort s, NetPort d, NetEdge e) {
         if (e.connect(this, s, d)) {
             addEdge(e);
             return e;
@@ -366,15 +359,20 @@ public class DefaultGraphModel extends MutableGraphSupport implements
      * Return true if the connection to the old node can be rerouted to the new
      * node.
      */
-    public boolean canChangeConnectedNode(Object newNode, Object oldNode,
-            Object edge) {
+    public boolean canChangeConnectedNode(Object newNode, Object oldNode, Object edge) {
         return false;
     }
 
     /**
      * Reroutes the connection to the old node to be connected to the new node.
      */
-    public void changeConnectedNode(Object newNode, Object oldNode,
-            Object edge, boolean isSource) {
+    public void changeConnectedNode(NetNode newNode, NetNode oldNode, NetEdge edge, boolean isSource) {
     }
+
+    @Override
+    public Object connect(NetPort fromPort, NetPort toPort, Object edgeType, Map<?, ?> attributes) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 } /* end class DefaultGraphModel */

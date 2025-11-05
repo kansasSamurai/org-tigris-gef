@@ -63,19 +63,25 @@ public class Diagram implements Serializable, GraphListener {
      */
     @Deprecated
     protected String _name = "no title set";
+
     /**
      * @deprecated in 0.13 will become private use getter/setter
      */
     @Deprecated
     protected String _comments = "(no comments given)";
+
     private LayerPerspective layer;
+
     /**
      * @deprecated in 0.13 will become private use getter/setter
      */
     @Deprecated
     protected transient ToolBar _toolBar;
+
     private transient Vector<VetoableChangeListener> vetoListeners;
+
     private transient PropertyChangeSupport changeSupport;
+
     // TODO: Sounds like this isn't needed any more
     // In JDK < 1.4 there is no way to get all listener from the
     // PropertyChangeSupport, so we keep a list here
@@ -83,8 +89,8 @@ public class Diagram implements Serializable, GraphListener {
         new HashSet<PropertyChangeListener>();
 
     /**
-     * The bean property name denoting the scale factor. Value is a Double in
-     * range [0, 1]
+     * The bean property name denoting the scale factor. 
+     * Value is a Double in range [0, 1]
      */
     public static final String SCALE_KEY = "scale";
 
@@ -226,12 +232,12 @@ public class Diagram implements Serializable, GraphListener {
         this.layer = layer;
     }
 
-    public int countContained(List owners) {
+    public int countContained(List<?> owners) {
 
         int count = 0;
         int numOwners = owners.size();
 
-        Iterator nodeIter = getNodes().iterator();
+        Iterator<Object> nodeIter = getNodes().iterator();
         while (nodeIter.hasNext()) {
             Object node = nodeIter.next();
 
@@ -243,7 +249,7 @@ public class Diagram implements Serializable, GraphListener {
             }
         }
 
-        Iterator edgeIter = getEdges().iterator();
+        Iterator<Object> edgeIter = getEdges().iterator();
         while (edgeIter.hasNext()) {
             Object edge = edgeIter.next();
 
@@ -255,9 +261,9 @@ public class Diagram implements Serializable, GraphListener {
             }
         }
 
-        List figs = getLayer().getContents();
+        List<?> figs = getLayer().getContents();
 
-        Iterator it = figs.iterator();
+        Iterator<?> it = figs.iterator();
         while (it.hasNext()) {
             Object fig = it.next();
             for (int j = 0; j < numOwners; j++) {
@@ -275,10 +281,11 @@ public class Diagram implements Serializable, GraphListener {
      * 
      * @return the nodes
      */
-    public List getNodes() {
+    public List<Object> getNodes() {
         // needs-more-work: should just do getGraphModel().getNodes()
         // but that is not updated when the diagram is loaded
-        List nodes = new ArrayList();
+        List<Object> nodes = new ArrayList<>();
+
         List<? extends Fig> figs = getLayer().getContents();
         for (Fig fig : figs) {
             if (fig instanceof FigNode) {
@@ -294,12 +301,12 @@ public class Diagram implements Serializable, GraphListener {
      * 
      * @return the edges
      */
-    public List getEdges() {
+    public List<Object> getEdges() {
         // needs-more-work: should just do getGraphModel().getEdges()
         // but that is not updated when the diagram is loaded
-        List edges = new ArrayList();
-        final List<? extends Fig> figs = getLayer().getContents();
+        List<Object> edges = new ArrayList<>();
 
+        final List<? extends Fig> figs = getLayer().getContents();
         for (final Fig fig : figs) {
             if (fig instanceof FigEdge && fig.getOwner() != null) {
                 edges.add(fig.getOwner());
@@ -323,9 +330,8 @@ public class Diagram implements Serializable, GraphListener {
         layer.removeAll();
     }
 
-    public Enumeration elements() {
-        Enumeration result = layer.elements();
-
+    public Enumeration<?> elements() {
+        Enumeration<?> result = layer.elements();
         return result;
     }
 
@@ -333,7 +339,7 @@ public class Diagram implements Serializable, GraphListener {
         return layer.hit(r);
     }
 
-    public Enumeration elementsIn(Rectangle r) {
+    public Enumeration<?> elementsIn(Rectangle r) {
         return layer.elementsIn(r);
     }
 
@@ -341,7 +347,7 @@ public class Diagram implements Serializable, GraphListener {
         return layer.presentationFor(obj);
     }
 
-    public List presentationsFor(Object obj) {
+    public List<?> presentationsFor(Object obj) {
         return layer.presentationsFor(obj);
     }
 
@@ -533,10 +539,8 @@ public class Diagram implements Serializable, GraphListener {
     // hardcore: called when diagram should be removed - especially when project
     // is removed. Per.
     public void remove() {
-        for (Iterator iterator = propertyChangeListeners.iterator(); iterator
-                .hasNext();) {
-            PropertyChangeListener listener = (PropertyChangeListener) iterator
-                    .next();
+        for (Iterator<PropertyChangeListener> iterator = propertyChangeListeners.iterator(); iterator.hasNext();) {
+            PropertyChangeListener listener = (PropertyChangeListener) iterator.next();
             removePropertyChangeListenerInt(listener);
         }
 
@@ -544,4 +548,5 @@ public class Diagram implements Serializable, GraphListener {
             vetoListeners.clear();
         }
     }
+
 }

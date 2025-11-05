@@ -145,7 +145,7 @@ public class FigGroup extends Fig {
      *                Collection of figs to be added.
      */
     public void addFigs(Collection<Fig> figs) {
-        Iterator figIter = figs.iterator();
+        Iterator<Fig> figIter = figs.iterator();
         while (figIter.hasNext()) {
             addFig((Fig) figIter.next());
         }
@@ -194,12 +194,15 @@ public class FigGroup extends Fig {
             boundingBox = new Rectangle(0, 0, 0, 0);
         }
 
-        _x = boundingBox.x;
-        _y = boundingBox.y;
-        _w = boundingBox.width;
-        _h = boundingBox.height + extraFrameSpace;
+        boundingBox.height += extraFrameSpace;
+
+        setBoundsNoEvent(boundingBox);
+//        setX(boundingBox.x);
+//        setY(boundingBox.y);
+//        setWidth(boundingBox.width);
+//        setHeight(boundingBox.height + extraFrameSpace);
     }
-    
+
     /**
      * Returns the bounds of the given subfig. This method can be overwritten in
      * order to use different strategies on determining the overall bounds of
@@ -218,7 +221,7 @@ public class FigGroup extends Fig {
     public Object clone() {
         FigGroup figClone = (FigGroup) super.clone();
         int figCount = this.figs.size();
-        ArrayList figsClone = new ArrayList(figCount);
+        ArrayList<Fig> figsClone = new ArrayList<>(figCount);
         for (int i = 0; i < figCount; ++i) {
             Fig tempFig = (Fig) this.figs.get(i);
             Fig tempFigClone = (Fig) tempFig.clone();
@@ -243,7 +246,7 @@ public class FigGroup extends Fig {
      * @deprecated use getFigs() and create your own iterator.
      */
     @Deprecated
-    public Iterator iterator() {
+    public Iterator<Fig> iterator() {
         return this.figs.iterator();
     }
 
@@ -381,9 +384,7 @@ public class FigGroup extends Fig {
     /** Paint all the Figs in this group. */
     public void paint(Graphics g) {
         if (isVisible()) {
-            Iterator it = getFigs().iterator();
-            while (it.hasNext()) {
-                Fig f = (Fig) it.next();
+            for (Fig f : getFigs()) {
                 if (f.isVisible()) {
                     f.paint(g);
                 }
@@ -395,9 +396,8 @@ public class FigGroup extends Fig {
         sb.append("<g id='").append(getId()).append("' class='").append(
                 getClass().getName()).append("'");
         appendSvgStyle(sb);
-        for (Iterator it = getFigs().iterator(); it.hasNext();) {
-            Fig fig = (Fig) it.next();
-            fig.appendSvg(sb);
+        for (Fig f : getFigs()) {
+            f.appendSvg(sb);
         }
         sb.append("</g>");
     }
@@ -430,9 +430,9 @@ public class FigGroup extends Fig {
      * Returns a list of the displayable Figs enclosed. e.g. returns the list of
      * enclosed Figs, without the Compartments that should not be displayed.
      */
-    public Collection getDisplayedFigs(Collection c) {
+    public Collection<Fig> getDisplayedFigs(Collection<Fig> c) {
         if (c == null)
-            c = new ArrayList();
+            c = new ArrayList<Fig>();
 
         int figCount = this.figs.size();
         for (int figIndex = 0; figIndex < figCount; ++figIndex) {
@@ -464,10 +464,10 @@ public class FigGroup extends Fig {
         for (int figIndex = 0; figIndex < figCount; ++figIndex) {
             Fig f = (Fig) this.figs.get(figIndex);
             if (f.isVisible()) {
-                int newW = (_w == 0) ? 0 : (f.getWidth() * w) / _w;
-                int newH = (_h == 0) ? 0 : (f.getHeight() * h) / _h;
-                int newX = (_w == 0) ? x : x + ((f.getX() - _x) * w) / _w;
-                int newY = (_h == 0) ? y : y + ((f.getY() - _y) * h) / _h;
+                int newW = (getWidth() == 0) ? 0 : (f.getWidth() * w) / getWidth();
+                int newH = (getHeight() == 0) ? 0 : (f.getHeight() * h) / getHeight();
+                int newX = (getWidth() == 0) ? x : x + ((f.getX() - getX()) * w) / getWidth();
+                int newY = (getHeight() == 0) ? y : y + ((f.getY() - getY()) * h) / getHeight();
                 f.setBoundsImpl(newX, newY, newW, newH);
             }
         }
@@ -631,8 +631,11 @@ public class FigGroup extends Fig {
             Fig f = (Fig) this.figs.get(figIndex);
             f.translate(dx, dy);
         }
-        _x += dx;
-        _y += dy; // no need to call calcBounds();
+        // setLocation(getX()+dx, getY()+dy);
+        translateNoEvent(dx, dy);
+//         _x += dx;
+//         _y += dy; 
+        // no need to call calcBounds();
         firePropChange("bounds", oldBounds, getBounds());
     }
 

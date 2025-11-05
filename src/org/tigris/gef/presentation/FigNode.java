@@ -60,6 +60,7 @@ import java.util.List;
 /**
  * Class to present a node (such as a NetNode) in a diagram.
  */
+@SuppressWarnings("deprecation")
 public class FigNode extends FigGroup implements Highlightable, GraphNode, MouseListener {
 
     private static final long serialVersionUID = 5312194520189613781L;
@@ -67,13 +68,14 @@ public class FigNode extends FigGroup implements Highlightable, GraphNode, Mouse
     private static final Log LOG = LogFactory.getLog(FigNode.class);
 
     private static final LookupOp SHADOW_LOOKUP_OP;
+
     private static final ConvolveOp SHADOW_CONVOLVE_OP;
 
     // Fields used in paint() for painting shadows
     private BufferedImage shadowImage;
     private int cachedWidth = -1;
     private int cachedHeight = -1;
-    
+
     private List<Connector> connectors = new ArrayList<Connector>();
 
     /**
@@ -166,7 +168,7 @@ public class FigNode extends FigGroup implements Highlightable, GraphNode, Mouse
      * @param figs
      *                the figs to be contained as a group by this FigNode
      */
-    public FigNode(Object node, Collection figs) {
+    public FigNode(Object node, Collection<Fig> figs) {
         this(node);
         setFigs(figs);
     }
@@ -181,9 +183,10 @@ public class FigNode extends FigGroup implements Highlightable, GraphNode, Mouse
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     public Object clone() {
         FigNode figClone = (FigNode) super.clone();
-        figClone.figEdges = (ArrayList) figEdges.clone();
+        figClone.figEdges = (ArrayList<FigEdge>) figEdges.clone();
         return figClone;
     }
 
@@ -257,10 +260,12 @@ public class FigNode extends FigGroup implements Highlightable, GraphNode, Mouse
         return c;
     }
 
+    @SuppressWarnings("unchecked")
     public List<FigEdge> getFigEdges() {
         return (List<FigEdge>) (figEdges.clone());
     }
 
+    @SuppressWarnings("unchecked")
     public List<GraphEdge> getGraphEdges() {
         return (List<GraphEdge>) (figEdges.clone());
     }
@@ -288,14 +293,14 @@ public class FigNode extends FigGroup implements Highlightable, GraphNode, Mouse
     /** Returns true if any Fig in the group hits the given rect. */
     public boolean hit(Rectangle r) {
         int cornersHit = countCornersContained(r.x, r.y, r.width, r.height);
-        if (_filled)
+        if (isFilled())
             return cornersHit > 0;
         else
             return cornersHit > 0 && cornersHit < 4;
     }
 
     public boolean contains(int x, int y) {
-        return (_x <= x) && (x <= _x + _w) && (_y <= y) && (y <= _y + _h);
+        return (getX() <= x) && (x <= getX() + getWidth()) && (getY() <= y) && (y <= getY() + getHeight());
     }
 
     public void setEnclosingFig(Fig f) {
@@ -446,8 +451,8 @@ public class FigNode extends FigGroup implements Highlightable, GraphNode, Mouse
      * 
      * @return the List of figs
      */
-    public List getPortFigs() {
-        ArrayList portFigs = new ArrayList();
+    public List<Fig> getPortFigs() {
+        ArrayList<Fig> portFigs = new ArrayList<>();
         int figCount = getFigCount();
         for (int figIndex = 0; figIndex < figCount; ++figIndex) {
             Fig f = getFigAt(figIndex);
@@ -592,8 +597,8 @@ public class FigNode extends FigGroup implements Highlightable, GraphNode, Mouse
         // System.out.println("[FigNode] paint: owner = " + getOwner());
         if (_highlight) {
             Color lineColor = Globals.getPrefs().getHighlightColor();
-            drawRect(g, false, null, 3, lineColor, _x - 5, _y - 5, _w + 9,
-                    _h + 8, false, _dashes, _dashPeriod);
+            drawRect(g, false, null, 3, lineColor, getX() - 5, getY() - 5, getWidth() + 9,
+                    getHeight() + 8, false, _dashes, _dashPeriod);
         }
     }
 
@@ -700,8 +705,8 @@ public class FigNode extends FigGroup implements Highlightable, GraphNode, Mouse
     }
 
     /**
-     * Update the position of edges according to the position of the node. Does
-     * nothing if undo in progress.
+     * Update the position of edges according to the position of the node. 
+     * Does nothing if undo in progress.
      */
     public void updateEdges() {
         if (!UndoManager.getInstance().isUndoInProgress()) {

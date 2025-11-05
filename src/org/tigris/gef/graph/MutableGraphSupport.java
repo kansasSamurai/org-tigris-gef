@@ -37,6 +37,9 @@ import java.util.Vector;
 import javax.swing.Action;
 
 import org.tigris.gef.di.GraphElement;
+import org.tigris.gef.graph.presentation.NetEdge;
+import org.tigris.gef.graph.presentation.NetNode;
+import org.tigris.gef.graph.presentation.NetPort;
 import org.tigris.gef.presentation.Fig;
 
 /**
@@ -46,8 +49,10 @@ import org.tigris.gef.presentation.Fig;
  * utility methods.
  */
 
-public abstract class MutableGraphSupport implements MutableGraphModel,
-        java.io.Serializable {
+@SuppressWarnings("serial")
+public abstract class MutableGraphSupport implements 
+    MutableGraphModel<NetNode, NetEdge, NetPort>, 
+    java.io.Serializable {
 
     private Vector _graphListeners;
 
@@ -73,7 +78,7 @@ public abstract class MutableGraphSupport implements MutableGraphModel,
      * Return a valid node in this graph TODO Should throw a GraphModelException
      * or InvalidArgumentException
      */
-    public Object createNode(String name, Hashtable args) {
+    public NetNode createNode(String name, Hashtable args) {
         Object newNode;
         try {
             newNode = Class.forName(name).newInstance();
@@ -88,7 +93,7 @@ public abstract class MutableGraphSupport implements MutableGraphModel,
         if (newNode instanceof GraphNodeHooks) {
             ((GraphNodeHooks) newNode).initialize(args);
         }
-        return newNode;
+        return (NetNode) newNode;
     }
 
     protected ConnectionConstrainer getConnectionConstrainer() {
@@ -107,20 +112,18 @@ public abstract class MutableGraphSupport implements MutableGraphModel,
      * Return true if the type of the given node can be mapped to a type
      * supported by this type of diagram
      */
-    public boolean canDragNode(Object node) {
+    public boolean canDragNode(NetNode node) {
         return false;
     }
 
     /** Create a new node based on the given one and add it to the graph. */
-    public void dragNode(Object node) {
+    public void dragNode(NetNode node) {
     }
 
     /**
-     * Return true if the connection to the old node can be rerouted to the new
-     * node.
+     * Return true if the connection to the old node can be rerouted to the new node.
      */
-    public boolean canChangeConnectedNode(Object newNode, Object oldNode,
-            Object edge) {
+    public boolean canChangeConnectedNode(Object newNode, Object oldNode, Object edge) {
         return false;
     }
 
@@ -136,7 +139,7 @@ public abstract class MutableGraphSupport implements MutableGraphModel,
      * @param edgeType
      *                An identifier indicating the type of edge to create
      */
-    public boolean canConnect(Object fromPort, Object toPort, Object edgeType) {
+    public boolean canConnect(NetNode fromPort, NetNode toPort, NetEdge edgeType) {
         boolean canConnect = false;
         if (connectionConstrainer != null) {
             canConnect = connectionConstrainer.isConnectionValid(edgeType,
@@ -159,7 +162,7 @@ public abstract class MutableGraphSupport implements MutableGraphModel,
      * @param edgeClass
      *                The edge class for which test
      */
-    public boolean canConnect(Object fromPort, Object toPort, Class edgeClass) {
+    public boolean canConnect(NetPort fromPort, NetPort toPort, Class edgeClass) {
         boolean canConnect = false;
         if (connectionConstrainer != null) {
             canConnect = connectionConstrainer.isConnectionValid(edgeClass,
@@ -173,15 +176,14 @@ public abstract class MutableGraphSupport implements MutableGraphModel,
     /**
      * Reroutes the connection to the old node to be connected to the new node.
      */
-    public void changeConnectedNode(Object newNode, Object oldNode,
-            Object edge, boolean isSource) {
+    public void changeConnectedNode(NetNode newNode, NetNode oldNode, NetEdge edge, boolean isSource) {
     }
 
     /**
-     * Contruct and add a new edge of the given kind. By default ignore
-     * edgeClass and call connect(port,port).
+     * Contruct and add a new edge of the given kind. 
+     * By default ignore edgeClass and call connect(port,port).
      */
-    public Object connect(Object fromPort, Object toPort, Object edgeClass) {
+    public NetEdge connect(NetPort fromPort, NetPort toPort, Object edgeClass) {
         return connect(fromPort, toPort);
     }
 
@@ -206,31 +208,30 @@ public abstract class MutableGraphSupport implements MutableGraphModel,
      * @return The type of edge created (the same as <code>edgeClass</code> if
      *         we succeeded, <code>null</code> otherwise)
      */
-    public Object connect(Object fromPort, Object toPort, Object edgeType,
-            Map styleAttributes) {
+    public Object connect(NetPort fromPort, NetPort toPort, Class edgeType, Map styleAttributes) {
         return connect(fromPort, toPort);
     }
 
     // //////////////////////////////////////////////////////////////
     // utility methods
 
-    public boolean containsNode(Object node) {
-        List nodes = getNodes();
+    public boolean containsNode(NetNode node) {
+        List<NetNode> nodes = getNodes();
         return nodes.contains(node);
     }
 
-    public boolean containsEdge(Object edge) {
-        List edges = getEdges();
+    public boolean containsEdge(NetEdge edge) {
+        List<NetEdge> edges = getEdges();
         return edges.contains(edge);
     }
 
     public boolean containsNodePort(Object port) {
-        List nodes = getNodes();
+        List<NetNode> nodes = getNodes();
         if (nodes == null) {
             return false;
         }
         for (int i = 0; i < nodes.size(); ++i) {
-            List ports = getPorts(nodes.get(i));
+            List<NetNode> ports = getPorts(nodes.get(i));
             if (ports != null && ports.contains(port)) {
                 return true;
             }
@@ -239,12 +240,12 @@ public abstract class MutableGraphSupport implements MutableGraphModel,
     }
 
     public boolean containsEdgePort(Object port) {
-        List edges = getNodes();
+        List<NetNode> edges = getNodes();
         if (edges == null) {
             return false;
         }
         for (int i = 0; i < edges.size(); ++i) {
-            List ports = getPorts(edges.get(i));
+            List<NetNode> ports = getPorts(edges.get(i));
             if (ports != null && ports.contains(port)) {
                 return true;
             }
@@ -361,22 +362,22 @@ public abstract class MutableGraphSupport implements MutableGraphModel,
         }
     }
 
-    public void removeNode(Object node) {
+    public void removeNode(NetNode node) {
         fireNodeRemoved(node);
     }
 
     /** Add the given node to the graph, if valid. */
-    public void addNode(Object node) {
+    public void addNode(NetNode node) {
         fireNodeAdded(node);
     }
 
     /** Add the given edge to the graph, if valid. */
-    public void addEdge(Object edge) {
+    public void addEdge(NetEdge edge) {
         fireEdgeAdded(edge);
     }
 
     /** Remove the given edge from the graph. */
-    public void removeEdge(Object edge) {
+    public void removeEdge(NetEdge edge) {
         fireEdgeRemoved(edge);
     }
 

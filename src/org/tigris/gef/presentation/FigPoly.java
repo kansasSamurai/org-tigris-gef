@@ -24,12 +24,9 @@
 
 package org.tigris.gef.presentation;
 
-import org.tigris.gef.base.Geometry;
-
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
@@ -39,18 +36,24 @@ import java.awt.geom.GeneralPath;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.tigris.gef.base.Geometry;
+
 /**
- * Primitive Fig to paint Polygons on a LayerDiagram. FigPolys contain a set of
- * points that define the polygon, a boolean to determine if the polygon should
- * be constrained to rectilinear (strict horizontal and vertical) segments, and
- * a number of handles that cannot be moved by user dragging. A FigPoly is not
- * closed unless the last point equals the first point. Thus, FigPolys can be
- * used to represent polylines such as FigEdgeRectilinear.
+ * Primitive Fig to paint Polygons on a LayerDiagram. 
+ * <p>
+ * FigPolys contain:<ul>
+ * <li>a set of points that define the polygon,</li>
+ * <li>a boolean to determine if the polygon should be constrained to rectilinear (strict horizontal and vertical) segments,</li>
+ * <li>and a number of handles that cannot be moved by user dragging</li>
+ * </ul><p>
+ * A FigPoly is not closed unless the last point equals the first point. 
+ * Thus, FigPolys can be used to represent polylines such as FigEdgeRectilinear.
  * 
  * @author jrobbins@ics.uci.edu
  */
 public class FigPoly extends Fig {
 
+    @SuppressWarnings("unused")
     private static final float MITER_LIMIT = 10.0f;
 
     private static final long serialVersionUID = -4809619139509617929L;
@@ -69,6 +72,9 @@ public class FigPoly extends Fig {
 
     /** The array of y coordinates. */
     protected int[] _ypoints = new int[4];
+
+    /** The shape as an AWT Polygon - mainly for paint() */
+    private Polygon polygon;
 
     /** Flag to control how the polygon is drawn */
     protected boolean _rectilinear = false;
@@ -131,11 +137,15 @@ public class FigPoly extends Fig {
 
     /** Get the current vector of points as a java.awt.Polygon. */
     public Polygon getPolygon() {
-        return new Polygon(_xpoints, _ypoints, _npoints);
+        if (polygon == null)
+            return new Polygon(_xpoints, _ypoints, _npoints);
+        else
+            return polygon;
     }
 
     /** Set the current vector of points. */
     public void setPolygon(Polygon p) {
+        polygon = p;
         _npoints = p.npoints;
         _xpoints = new int[_npoints];
         _ypoints = new int[_npoints];
@@ -218,7 +228,6 @@ public class FigPoly extends Fig {
      * transforming... maybe. Fires PropertyChange with "bounds".
      */
     protected void translateImpl(int dx, int dy) {
-        Rectangle oldBounds = getBounds();
 
         for (int i = 0; i < _npoints; ++i) {
             _xpoints[i] += dx;
@@ -226,9 +235,7 @@ public class FigPoly extends Fig {
         }
 
         // dont call calcBounds because width and height are unchanged
-        _x += dx;
-        _y += dy;
-        firePropChange("bounds", oldBounds, getBounds());
+        super.translateImpl(dx, dy);
     }
 
     /** Add a point to this polygon. Fires PropertyChange with "bounds". */
@@ -531,6 +538,7 @@ public class FigPoly extends Fig {
         return Geometry.ptClosestTo(_xpoints, _ypoints, _npoints, anotherPt);
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public List getGravityPoints() {
         return getPointsList();
     }
@@ -539,63 +547,64 @@ public class FigPoly extends Fig {
     // painting methods
 
     /** Paint the FigPoly on the given Graphics */
+    @SuppressWarnings("deprecation")
     public void paint(Graphics g) {
 
-        if (_filled && _fillColor != null) {
-            if (g instanceof Graphics2D) {
-                Graphics2D g2 = (Graphics2D) g;
+        if (g instanceof Graphics2D) {
+            Graphics2D g2 = g2Create(g); // (Graphics2D) g;
+
+            if (isFilled() && getFillColor() != null) {
                 // TODO: Move this out of paint for performance
-                Shape poly = new Polygon(getXs(), getYs(), getNumPoints());
+                // The following implementation is experimental; have not tested translate, etc.
+                // It seems to work visually using JGraph/JGraphFrame but more testing required.
+                Shape poly = getPolygon(); // new Polygon(getXs(), getYs(), getNumPoints());
                 Rectangle bb = poly.getBounds();
-                Paint oldPaint = g2.getPaint();
-                g2.setPaint(getDefaultPaint(_fillColor, _lineColor, bb.x, bb.y,
-                        bb.width, bb.height));
+                g2.setPaint(getDefaultPaint(getFillColor(), getLineColor(), bb.x, bb.y, bb.width, bb.height));
                 g2.fill(poly);
-                g2.setPaint(oldPaint);
-            } else {
-                g.setColor(_fillColor);
+            }
+
+            if (getLineWidth() > 0 && getLineColor() != null) {
+                g2.setColor(getLineColor());
+                final float[] dashes = getDashed() ? _dashes : null;
+                drawPolyLine(g2, (float) getLineWidth(), _npoints, _xpoints, _ypoints, dashes, 0f);
+            }
+
+            g2.dispose();
+        } else {
+            if (isFilled() && getFillColor() != null) {
+                g.setColor(getFillColor());
                 g.fillPolygon(_xpoints, _ypoints, _npoints);
             }
-        }
-
-        if (getLineWidth() > 0 && _lineColor != null) {
-            g.setColor(_lineColor);
-            if (g instanceof Graphics2D) {
-                float[] dashes = null;
+            if (getLineWidth() > 0 && getLineColor() != null) {
+                g.setColor(getLineColor());
                 if (getDashed()) {
-                    dashes = _dashes;
-                }
-                drawPolyLine((Graphics2D) g, (float) getLineWidth(), _npoints,
-                        _xpoints, _ypoints, dashes, 0f);
-            } else {
-                if (getDashed()) {
-                    drawDashedPerimeter(g, getLineWidth(), _npoints, _xpoints,
-                            _ypoints, _dashes, _dashPeriod);
+                    drawDashedPerimeter(g, getLineWidth(), _npoints, _xpoints, _ypoints, _dashes, _dashPeriod);
                 } else {
                     g.drawPolyline(_xpoints, _ypoints, _npoints);
                 }
             }
         }
+
     }
 
-    private void drawDashedPerimeter(Graphics g, int lineWidth, int pointCount,
+    private void drawDashedPerimeter(Graphics g, int lineWidth, int pointCount, 
             int xPoints[], int yPoints[], float dashes[], int dashPeriod) {
-    	
-    	if (g instanceof Graphics2D) {
-            drawPolyLine((Graphics2D) g, (float) lineWidth, pointCount,
-                    xPoints, yPoints, dashes, 0f);
-            return;
-    	}
+
+// This should no longer be reachable by G2D code; see paint()
+//        if (g instanceof Graphics2D) {
+//            drawPolyLine((Graphics2D) g, (float) lineWidth, pointCount, xPoints, yPoints, dashes, 0f);
+//            return;
+//        }
         int phase = 0;
         for (int i = 1; i < pointCount; i++) {
-            phase = drawDashedLine(g, lineWidth, xPoints[i - 1],
-                    yPoints[i - 1], xPoints[i], yPoints[i], phase, dashes,
-                    dashPeriod);
+            phase = drawDashedLine(g, lineWidth, xPoints[i - 1], yPoints[i - 1], 
+                    xPoints[i], yPoints[i], phase, dashes, dashPeriod);
         }
     }
 
     /**
-     * Draw a polyline
+     * Draw a polyline with a Graphics2D context.
+     * 
      * @param g2 graphics context
      * @param width line width
      * @param pointCount number of points in line
@@ -603,9 +612,11 @@ public class FigPoly extends Fig {
      * @param yPoints array of Y coordinates
      * @param dashes array of dash lengths
      */
-    private void drawPolyLine(Graphics2D g2, float width, int pointCount,
-            int[] xPoints,
-            int[] yPoints, float[] dashes, float dash_phase) {
+    private void drawPolyLine(Graphics2D g2, float width, int pointCount, 
+            int[] xPoints, int[] yPoints, float[] dashes, float dash_phase) {
+
+        Stroke originalStroke = g2.getStroke();
+        g2.setStroke(getDefaultStroke(width, dashes, dash_phase));
 
         GeneralPath gp = new GeneralPath();
         gp.reset();
@@ -613,10 +624,8 @@ public class FigPoly extends Fig {
         for (int i = 1; i < pointCount; i++) {
             gp.lineTo(xPoints[i], yPoints[i]);
         }
-
-        Stroke originalStroke = g2.getStroke();
-        g2.setStroke(getDefaultStroke(width, dashes, dash_phase));
         g2.draw(gp);
+
         g2.setStroke(originalStroke);
     }
 
@@ -678,24 +687,22 @@ public class FigPoly extends Fig {
     }
 
     /**
-     * Sets the FigPoly's bounding box to the given coordinates. Scales all
-     * points into the new bounding box. Fires PropertyChange with "bounds".
+     * Sets the FigPoly's bounding box to the given coordinates. 
+     * <p>
+     * Scales all points into the new bounding box. 
+     * Fires PropertyChange with "bounds".
      */
     protected void setBoundsImpl(int x, int y, int w, int h) {
-        Rectangle oldBounds = getBounds();
 
         if (w > 0 && h > 0) {
 
             for (int i = 0; i < _npoints; ++i) {
-                _xpoints[i] = x + ((_xpoints[i] - _x) * w) / _w;
-                _ypoints[i] = y + ((_ypoints[i] - _y) * h) / _h;
+                _xpoints[i] = x + ((_xpoints[i] - getX()) * w) / getWidth();
+                _ypoints[i] = y + ((_ypoints[i] - getY()) * h) / getHeight();
             }
 
-            _x = x;
-            _y = y;
-            _w = w;
-            _h = h;
-            firePropChange("bounds", oldBounds, getBounds());
+            super.setBoundsImpl(x, y, w, h);
+
         }
     }
 
@@ -863,9 +870,8 @@ public class FigPoly extends Fig {
         // needs-more-work: could be faster, dont alloc polygon
         Rectangle polyBounds = getPolygon().getBounds();
 
-        _x = polyBounds.x;
-        _y = polyBounds.y;
-        _w = polyBounds.width;
-        _h = polyBounds.height;
+        setBoundsNoEvent(polyBounds);
+
     }
+
 } /* end class FigPoly */

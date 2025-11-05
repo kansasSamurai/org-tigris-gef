@@ -27,25 +27,38 @@
 
 package org.tigris.gef.base;
 
-import java.awt.*;
-import java.io.*;
-import org.apache.commons.logging.*;
+import java.awt.FileDialog;
+import java.awt.Rectangle;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.OutputStream;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Abstract Cmd to save a diagram as Graphics in a supplied OutputStream.
+ * <p>
  * Operates on the diagram in the current editor.
  * 
  * @deprecated in 0.12.3 use SaveGraphicsAction
  * @author Frank Wienberg, wienberg@informatik.uni-hamburg.de
  */
 
-public abstract class CmdSaveGraphics extends Cmd {
+public abstract class CmdSaveGraphics extends Cmd implements FilenameFilter {
 
     private static Log LOG = LogFactory.getLog(LayerDiagram.class);
+
+    private static final long serialVersionUID = 1L;
+
     protected int scale = 1;
 
-    protected abstract void saveGraphics(OutputStream s, Editor ce,
-            Rectangle drawingArea) throws IOException;
+    protected abstract void saveGraphics(OutputStream s, Editor ce, Rectangle drawingArea) 
+            throws IOException;
 
     protected CmdSaveGraphics(String name) {
         super(name);
@@ -85,7 +98,43 @@ public abstract class CmdSaveGraphics extends Cmd {
         // Should this method ensure that no exceptions are propagated?
 
         Editor ce = Globals.curEditor();
+
+        Rectangle drawingArea = ce.getLayerManager().getActiveLayer().calcDrawingArea();
+        if (LOG.isDebugEnabled())
+            LOG.debug("Bounding box: " + drawingArea);
+
+        if (drawingArea.width <= 0 || drawingArea.height <= 0) {
+            if (LOG.isDebugEnabled())
+                LOG.debug("Graphics generation aborted.");
+            return;
+        }
+
+        String path = "";
+        String filename = "file"; 
+
         OutputStream s = (OutputStream) getArg("outputStream");
+        if (s == null) {
+            FileDialog fd = new FileDialog(ce.findFrame(),
+                    "Save Diagram in PGML format", FileDialog.SAVE);
+            fd.setFilenameFilter(this);
+            fd.setDirectory(Globals.getLastDirectory());
+            fd.setVisible(true);
+            filename = fd.getFile(); // blocking
+            path = fd.getDirectory(); // blocking
+
+            if (filename != null) {
+                try {
+                    File file = fd.getFiles()[0]; // new File(path, filename);
+                    s = new BufferedOutputStream(new FileOutputStream(file));
+                } catch (FileNotFoundException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+            } else {
+                return;
+            }
+        }
 
         // Determine the bounds of the diagram.
         //
@@ -105,16 +154,7 @@ public abstract class CmdSaveGraphics extends Cmd {
          * xmin; drawingArea.y = ymin; drawingArea.grow(4,4); // security border
          */
 
-        Rectangle drawingArea = ce.getLayerManager().getActiveLayer()
-                .calcDrawingArea();
-        if (LOG.isDebugEnabled())
-            LOG.debug("Bounding box: " + drawingArea);
-
-        if (drawingArea.width <= 0 || drawingArea.height <= 0) {
-            if (LOG.isDebugEnabled())
-                LOG.debug("Graphics generation aborted.");
-            return;
-        }
+        Globals.showStatus("Writing " + path + filename + "...");
 
         // Tell the editor to hide the grid before exporting:
 
@@ -126,10 +166,24 @@ public abstract class CmdSaveGraphics extends Cmd {
             saveGraphics(s, ce, drawingArea);
         } catch (java.io.IOException e) {
             LOG.error("Error while exporting Graphics:", e);
+        } finally {
+            try {
+                s.close();
+            } catch (IOException e) {
+                LOG.error("Error while closing output stream:", e);
+            }
         }
 
         // Restore old grid state:
         ce.setGridHidden(h);
+
+//        System.out.println("save done");
+        Globals.showStatus("Done Writing: " + path + filename);
+
+//      System.out.println("Cmd save in SVG...");
+
+
+        // ce.setTitle(filename);
 
     }
 
@@ -139,7 +193,13 @@ public abstract class CmdSaveGraphics extends Cmd {
 
     public void undoIt() {
         if (LOG.isWarnEnabled())
-            LOG.warn("Undo does not make sense for CmdSavePS");
+            LOG.warn("Undo does not make sense for CmdSaveGraphics");
+    }
+
+    @Override
+    public boolean accept(File dir, String name) {
+        // TODO Auto-generated method stub
+        return false;
     }
 
 } /* end class CmdSaveGraphics */

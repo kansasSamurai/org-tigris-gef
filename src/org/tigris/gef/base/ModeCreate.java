@@ -63,6 +63,7 @@ import org.tigris.gef.presentation.Fig;
  */
 
 public abstract class ModeCreate extends FigModifyingModeImpl {
+
     // //////////////////////////////////////////////////////////////
     // static variables
 
@@ -83,6 +84,8 @@ public abstract class ModeCreate extends FigModifyingModeImpl {
     protected Fig _newItem;
 
     private static Log LOG = LogFactory.getLog(ModeCreate.class);
+
+    private static final long serialVersionUID = 1L;
 
     // //////////////////////////////////////////////////////////////
     // constructors
@@ -215,9 +218,10 @@ public abstract class ModeCreate extends FigModifyingModeImpl {
     // painting methods
 
     /**
-     * Paint this mode by painting the new item. This is the only feedback that
-     * the user will get since the new item is not officially added to the
-     * Editor's document yet.
+     * Paint this mode by painting the new item.
+     * <p>
+     * This is the only feedback that the user will get since the new item 
+     * is not officially added to the Editor's document yet.
      */
     public void paint(Graphics g) {
         if (null != _newItem) {

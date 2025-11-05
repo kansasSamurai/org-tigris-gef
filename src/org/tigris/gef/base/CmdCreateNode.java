@@ -66,11 +66,11 @@ public class CmdCreateNode extends Cmd implements GraphFactory {
     /**
      * Construct a new Cmd with the given arguments for node class.
      */
-    public CmdCreateNode(Hashtable args, String resource, String name) {
+    public CmdCreateNode(Hashtable<Object, Object> args, String resource, String name) {
         super(args, resource, name);
     }
 
-    public CmdCreateNode(Hashtable args, String name) {
+    public CmdCreateNode(Hashtable<Object, Object> args, String name) {
         super(args, "GefBase", name);
     }
 
@@ -78,18 +78,18 @@ public class CmdCreateNode extends Cmd implements GraphFactory {
      * Construct a new Cmd with the given classes for the NetNode and its
      * FigNode.
      */
-    public CmdCreateNode(Class nodeClass, String resource, String name) {
-        this(new Hashtable(), resource, name);
+    public CmdCreateNode(Class<?> nodeClass, String resource, String name) {
+        this(new Hashtable<Object, Object>(), resource, name);
         setArg("className", nodeClass);
     }
 
-    public CmdCreateNode(Class nodeClass, String name) {
-        this(new Hashtable(), name);
+    public CmdCreateNode(Class<?> nodeClass, String name) {
+        this(new Hashtable<Object, Object>(), name);
         setArg("className", nodeClass);
     }
 
     public CmdCreateNode(Object nodeClass, String name, ImageIcon icon) {
-        super(new Hashtable(), name, icon);
+        super(new Hashtable<Object, Object>(), name, icon);
         setArg("className", nodeClass);
     }
 
@@ -155,15 +155,15 @@ public class CmdCreateNode extends Cmd implements GraphFactory {
      * classes.
      */
     public Object makeNode() {
-        Object newNode;
+        Object newNode = null;
         Object nodeType = getArg("className", DEFAULT_NODE_CLASS);
         if (nodeType instanceof Action) {
             // TODO: This is a NPE. What is the purpose of this?
-            Action a = null;
-            a.actionPerformed(null);
-            newNode = a.getValue("node");
+//            Action a = null;
+//            a.actionPerformed(null);
+//            newNode = a.getValue("node");
         } else {
-            Class nodeClass = (Class) getArg("className", DEFAULT_NODE_CLASS);
+            Class<?> nodeClass = (Class<?>) getArg("className", DEFAULT_NODE_CLASS);
             // assert _nodeClass != null
             try {
                 newNode = nodeClass.newInstance();
@@ -179,7 +179,7 @@ public class CmdCreateNode extends Cmd implements GraphFactory {
 
         if (newNode instanceof GraphNodeHooks) {
             LOG.debug("Initializing GraphNodeHooks");
-            ((GraphNodeHooks) newNode).initialize(_args);
+            ((GraphNodeHooks) newNode).initialize(getAllArgs());
         }
         return newNode;
     }

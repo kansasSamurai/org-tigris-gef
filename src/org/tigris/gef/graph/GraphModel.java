@@ -31,10 +31,9 @@ package org.tigris.gef.graph;
 import java.util.*;
 
 /**
- * This interface provides a facade to a net-level representation. Similiar in
- * concept to the Swing class TreeModel.
+ * This interface provides a facade to a net-level representation. 
+ * Similiar in concept to the Swing class TreeModel.
  * <p>
- * 
  * The idea is not to have a widget (like JGraph) storing all the information
  * that it should display, and the programmer having to keep the widget's data
  * in synch with the application's data. Instead, the programmer defines a Model
@@ -43,34 +42,33 @@ import java.util.*;
  * your own application data objects, there is a Default implementation of the
  * Model that will store it for you.
  * <p>
- * 
  * Instead of asking application programmers to subclass their data objects from
  * some predefined base class (like NetNode), this interface allows the use of
  * any application object as a node, port, or edge. This makes it much easier to
  * add a visualization to an existing application.
  */
-
-public interface GraphModel extends BaseGraphModel {
-    /** Return all nodes in the graph */
-    List getNodes();
+public interface GraphModel<N, E, P> extends BaseGraphModel<N, E, P> {
 
     /** Return all nodes in the graph */
-    List getEdges();
+    List<N> getNodes();
+
+    /** Return all edges in the graph */
+    List<E> getEdges();
 
     /** Return all ports on node or edge */
-    List getPorts(Object nodeOrEdge);
+    List<P> getPorts(Object nodeOrEdge);
 
     /** Return all edges going to given port */
-    List getInEdges(Object port);
+    List<E> getInEdges(P port);
 
     /** Return all edges going from given port */
-    List getOutEdges(Object port);
+    List<E> getOutEdges(P port);
 
     /**
-     * Set the rules dictating which ports are connectable by which edge
+     * Set the rules dictating which ports can be connected by which edge
      * 
-     * @param cc
-     *                A connection constrainer
+     * @param cc A connection constrainer
      */
     public void setConnectionConstrainer(ConnectionConstrainer cc);
+
 } /* end interface GraphModel */

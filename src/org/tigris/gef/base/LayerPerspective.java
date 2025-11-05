@@ -68,12 +68,12 @@ public class LayerPerspective extends LayerDiagram implements GraphListener {
      * Classes of NetNodes and NetEdges that are to be visualized in this
      * perspective.
      */
-    private Vector _allowedNetClasses = new Vector();
+    private Vector<Class<?>> _allowedNetClasses = new Vector<Class<?>>();
 
     /**
      * Rectangles of where to place nodes that are automatically added.
      */
-    private Hashtable _nodeTypeRegions = new Hashtable();
+    private Hashtable<Class<?>, Rectangle> _nodeTypeRegions = new Hashtable<Class<?>, Rectangle>();
 
     /**
      * The diagram containing this layer.
@@ -145,10 +145,9 @@ public class LayerPerspective extends LayerDiagram implements GraphListener {
     }
 
     /**
-     * Add a node class of NetNodes or NetEdges to what will be shown in this
-     * perspective.
+     * Add a node class of NetNodes/NetEdges to what will be shown in this perspective.
      */
-    public void allowNetClass(Class c) {
+    public void allowNetClass(Class<?> c) {
         _allowedNetClasses.addElement(c);
     }
 
@@ -161,16 +160,18 @@ public class LayerPerspective extends LayerDiagram implements GraphListener {
      * the predicate, and add it to the net.
      */
     // public void add(Fig f) { super.add(f); }
+
     /** Remove the given Fig from this layer. */
     // public void remove(Fig f) { super.remove(f); }
+
     // //////////////////////////////////////////////////////////////
     // node placement
-    public void addNodeTypeRegion(Class nodeClass, Rectangle region) {
+    public void addNodeTypeRegion(Class<?> nodeClass, Rectangle region) {
         _nodeTypeRegions.put(nodeClass, region);
     }
 
     public void putInPosition(Fig f) {
-        Class nodeClass = f.getOwner().getClass();
+        Class<? extends Object> nodeClass = f.getOwner().getClass();
         Rectangle placementRegion = (Rectangle) _nodeTypeRegions.get(nodeClass);
         if (placementRegion != null) {
             f.setLocation(placementRegion.x, placementRegion.y);
@@ -181,13 +182,12 @@ public class LayerPerspective extends LayerDiagram implements GraphListener {
     /**
      * Try and find a blank area of the diagram to place the new Fig.
      */
-    public void bumpOffOtherNodesIn(Fig newFig, Rectangle bounds,
-            boolean stagger, boolean vertical) {
+    public void bumpOffOtherNodesIn(Fig newFig, Rectangle bounds, boolean stagger, boolean vertical) {
         Rectangle bbox = newFig.getBounds();
         int origX = bbox.x, origY = bbox.y;
         int col = 0, row = 0, i = 1;
         while (bounds.intersects(bbox)) {
-            Enumeration overlappers = nodesIn(bbox);
+            Enumeration<?> overlappers = nodesIn(bbox);
             // If there is nothing overlapping then we are done:
             if (!overlappers.hasMoreElements())
                 return;

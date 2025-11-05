@@ -28,10 +28,6 @@
 
 package org.tigris.gef.base;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.tigris.gef.ui.IStatusBar;
-
 import java.applet.Applet;
 import java.applet.AppletContext;
 import java.awt.Component;
@@ -45,12 +41,16 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Vector;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.tigris.gef.ui.IStatusBar;
 
 /**
- * This class stores global info that is needed by all Editors. For example, it
- * aids in communication between the various Palette's and Editor's by holding
- * the next global Mode.
+ * This class stores global info that is needed by all Editors.
+ * <p> 
+ * For example, it aids in communication between the various Palette's 
+ * and Editor's by holding the next global Mode.
  */
 
 public class Globals {
@@ -103,10 +103,10 @@ public class Globals {
     }
 
     /**
-     * Until jdk 1.2, this will be our clipboard TODO we have now gone beyond
-     * JDK1.2
+     * Until jdk 1.2, this will be our clipboard 
+     * TODO we have now gone beyond JDK1.2
      */
-    public static List clipBoard;
+    public static List<?> clipBoard;
 
     public static boolean pastable = false;
 
@@ -233,8 +233,7 @@ public class Globals {
      * applet, not all windows are closed.
      */
     public static void quit() {
-        showStatus("Quiting"); // Needs-More-Work: put up "are you sure?"
-                                // dialog
+        showStatus("Quiting"); // Needs-More-Work: put up "are you sure?" dialog
         if (_applet.getAppletContext() != null) {
             _applet.destroy();
         }
@@ -424,7 +423,8 @@ public class Globals {
      * pointers that can reduce garbage collection.
      */
 
-    protected static Hashtable _pcListeners = new Hashtable();
+    protected static Hashtable<Object, PropertyChangeListener[]> _pcListeners = new Hashtable<>();
+
     protected static PropertyChangeListener universalListener = null;
 
     /** The most listeners a Fig can have, 4. */
@@ -434,10 +434,9 @@ public class Globals {
      * Add a listener to a Fig. Now the listener will get notifications of all
      * property change events from that Fig.
      */
-    public static void addPropertyChangeListener(Object src,
-            PropertyChangeListener l) {
-        PropertyChangeListener listeners[] = (PropertyChangeListener[]) _pcListeners
-                .get(src);
+    public static void addPropertyChangeListener(Object src, PropertyChangeListener l) {
+
+        PropertyChangeListener listeners[] = (PropertyChangeListener[]) _pcListeners.get(src);
         if (listeners == null) {
             listeners = new PropertyChangeListener[MAX_LISTENERS];
             _pcListeners.put(src, listeners);
@@ -488,28 +487,26 @@ public class Globals {
     }
 
     /** Send a property change event to listeners of the src Fig. */
-    public static void firePropChange(Object src, String propName,
-            boolean oldV, boolean newV) {
+    public static void firePropChange(Object src, String propName, boolean oldV, boolean newV) {
         firePropChange(src, propName, new Boolean(oldV), new Boolean(newV));
     }
 
     /** Send a property change event to listeners of the src Fig. */
-    public static void firePropChange(Object src, String propName, int oldV,
-            int newV) {
+    public static void firePropChange(Object src, String propName, int oldV, int newV) {
         firePropChange(src, propName, new Integer(oldV), new Integer(newV));
     }
 
     /** Send a property change event to listeners of the src Fig. */
-    public static void firePropChange(Object src, String propName,
-            Object oldValue, Object newValue) {
-        if (oldValue != null && oldValue.equals(newValue))
-            return;
-        PropertyChangeListener listeners[] = (PropertyChangeListener[]) _pcListeners
-                .get(src);
+    public static void firePropChange(Object src, String propName, Object oldValue, Object newValue) {
+
+        PropertyChangeListener listeners[] = (PropertyChangeListener[]) _pcListeners.get(src);
         if (listeners == null && universalListener == null)
             return;
-        PropertyChangeEvent evt = new PropertyChangeEvent(src, propName,
-                oldValue, newValue);
+
+        if (oldValue != null && oldValue.equals(newValue))
+            return;
+
+        PropertyChangeEvent evt = new PropertyChangeEvent(src, propName, oldValue, newValue);
         if (listeners != null) {
             // needs-more-work: should be thread safe, clone array?
             for (int i = 0; i < MAX_LISTENERS; ++i) {

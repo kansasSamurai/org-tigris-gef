@@ -46,12 +46,16 @@ import java.beans.*;
  */
 
 public abstract class NetPrimitive implements java.io.Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     // //////////////////////////////////////////////////////////////
     // instance variables
 
-    protected PropertyChangeSupport _changeSup = new PropertyChangeSupport(this);
     protected boolean _highlight = false;
 
+    protected PropertyChangeSupport _changeSup = new PropertyChangeSupport(this);
+    
     /** Construct a new net-level object, currently does nothing */
     public NetPrimitive() {
     }

@@ -42,15 +42,15 @@ import org.tigris.gef.presentation.FigNode;
 import org.tigris.gef.presentation.FigPainter;
 
 /**
- * A Layer like found in many drawing applications. It contains a collection of
- * Fig's, ordered from back to front. Each LayerDiagram contains part of the
- * overall picture that the user is drawing. Needs-More-Work: eventually add a
- * "Layers" menu to the Editor. <A HREF="../features.html#graph_visualization">
+ * A Layer like found in many drawing applications. 
+ * <p>
+ * It contains a collection of Fig's, ordered from back to front. 
+ * Each LayerDiagram contains part of the overall picture that the user is drawing. 
+ * Needs-More-Work: eventually add a "Layers" menu to the Editor. 
+ * <A HREF="../features.html#graph_visualization">
  * <TT>FEATURE: graph_visualization</TT></A>
  */
 public class LayerDiagram extends Layer {
-
-    private static final long serialVersionUID = 6193765162314431069L;
 
     private List<LayerListener> listeners = new ArrayList<LayerListener>();
 
@@ -61,6 +61,8 @@ public class LayerDiagram extends Layer {
     private static int nextLayerNumbered = 1;
 
     private static final Log LOG = LogFactory.getLog(LayerDiagram.class);
+
+    private static final long serialVersionUID = 6193765162314431069L;
 
     /**
      * Construct a new LayerDiagram with a default name and do not put it on the
@@ -80,7 +82,7 @@ public class LayerDiagram extends Layer {
         setOnMenu(true);
     }
 
-    public Enumeration elements() {
+    public Enumeration<?> elements() {
         return Collections.enumeration(contents);
     }
 
@@ -306,8 +308,8 @@ public class LayerDiagram extends Layer {
      * Find the all Figs that visualise the given model element in this layer,
      * or null if there is none.
      */
-    public List presentationsFor(Object obj) {
-        ArrayList presentations = new ArrayList();
+    public List<Fig> presentationsFor(Object obj) {
+        ArrayList<Fig> presentations = new ArrayList<>();
         int figCount = contents.size();
         for (int figIndex = 0; figIndex < figCount; ++figIndex) {
             Fig fig = (Fig) contents.get(figIndex);
@@ -474,9 +476,8 @@ public class LayerDiagram extends Layer {
                 return false;
             } else if (f.getLayer() != this) {
                 // TODO: Once JRE1.4 is minimum support we should use assertions
-                LOG
-                        .error("A fig has been found that doesn't refer back to the correct layer "
-                                + f.toString() + " - " + f.getLayer());
+                LOG.error("A fig has been found that doesn't refer back to the correct layer " 
+                        + f.toString() + " - " + f.getLayer());
                 f.setLayer(this);
                 return false;
             }
@@ -495,13 +496,13 @@ public class LayerDiagram extends Layer {
             ((Fig) this.contents.get(i)).postLoad();
         }
     }
-    
+
     public void addLayerListener(LayerListener listener) {
         listeners.add(listener);
     }
-    
+
     public void removeLayerListener(LayerListener listener) {
         listeners.remove(listener);
     }
-   
+
 }

@@ -80,12 +80,11 @@ public abstract class NetNode extends NetPrimitive implements GraphNodeHooks,
     }
 
     /**
-     * Usually when nodes are created it is deon through newInstance and there
+     * Usually when nodes are created it is done through new Instance and there
      * is no chance to supply a default node or to connect this node to some
-     * other application level object. So after a node is constructed initialize
-     * is called to supply that information.
+     * other application level object. So after a node is constructed, 
+     * initialize() is called to supply that information.
      * <p>
-     * 
      * Needs-More-Work: what is the class protocol design here?
      */
     public abstract void initialize(Hashtable args);
