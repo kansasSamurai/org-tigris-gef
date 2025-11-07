@@ -107,12 +107,12 @@ public class Diagram implements Serializable, GraphListener {
         this(name, new DefaultGraphModel());
     }
 
-    public Diagram(String name, GraphModel graphModel) {
+    public Diagram(String name, GraphModel<?,?,?> graphModel) {
         this(name, graphModel, new LayerPerspective(name, graphModel));
         getLayer().setDiagram(this);
     }
 
-    public Diagram(String name, GraphModel graphModel, LayerPerspective layer) {
+    public Diagram(String name, GraphModel<?,?,?> graphModel, LayerPerspective layer) {
         changeSupport = new PropertyChangeSupport(this);
         _name = name;
         this.layer = layer;
@@ -200,13 +200,13 @@ public class Diagram implements Serializable, GraphListener {
         return getClass().getName();
     }
 
-    public GraphModel getGraphModel() {
+    public GraphModel<?,?,?> getGraphModel() {
         return getLayer().getGraphModel();
     }
 
-    public void setGraphModel(GraphModel gm) {
+    public void setGraphModel(GraphModel<?,?,?> gm) {
 
-        GraphModel oldGM = getLayer().getGraphModel();
+        GraphModel<?,?,?> oldGM = getLayer().getGraphModel();
 
         if (oldGM != null)
             oldGM.removeGraphEventListener(this);

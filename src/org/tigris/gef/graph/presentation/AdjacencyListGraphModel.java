@@ -28,14 +28,26 @@ import java.util.*;
 import org.tigris.gef.graph.*;
 
 /**
- * This class is an example of an alternative way to implement
- * MutableGraphModel. Needs-more-work: this code has not been used or tested.
+ * This class is an example of an alternative way to implement MutableGraphModel. 
+ * Needs-more-work: this code has not been used or tested.
+ * <p>
+ * Refactor with generics:  This graph model defines "edges" as object arrays
+ * where: Object[] edge = new Object[3];
+ *         e[0] = srcPort; NetPort
+ *         e[1] = destPort; NetPort
+ *         e[2] = label; Object (probably a String but leaving Object for now)
+ *         
+ * Note:  It would probably be a simple matter to introduce a new class
+ * that defines an edge like this but I am just trying to get this to 
+ * compile for now; especially since I do not think there is a usage
+ * of this class to test based on the comment above.
  * 
  * @see DefaultGraphModel
  */
-
-public abstract class AdjacencyListGraphModel extends MutableGraphSupport
-        implements java.io.Serializable {
+@SuppressWarnings("serial")
+public abstract class AdjacencyListGraphModel implements 
+    MutableGraphModel<NetNode, Object[], NetPort>,
+    java.io.Serializable {
 
     // //////////////////////////////////////////////////////////////
     // constants
@@ -45,8 +57,8 @@ public abstract class AdjacencyListGraphModel extends MutableGraphSupport
     // //////////////////////////////////////////////////////////////
     // instance variables
 
-    protected Vector _nodes = new Vector();
-    protected Vector _edges = new Vector();
+    protected Vector<NetNode> _nodes = new Vector<>();
+    protected Vector<Object[]> _edges = new Vector<>();
 
     // //////////////////////////////////////////////////////////////
     // constructors
@@ -62,44 +74,87 @@ public abstract class AdjacencyListGraphModel extends MutableGraphSupport
             return false;
         if (_edges == null)
             return false;
+
         // all edges must start and end on some port on a node in this graph
-        Enumeration edgeNum = _edges.elements();
-        while (edgeNum.hasMoreElements()) {
-            Object[] e = (Object[]) edgeNum.nextElement();
-            if (!containsPort(e[0]) || !containsPort(e[1]))
+        for (Object[] e : _edges) {
+            if (!containsPort((NetPort)e[0] ) || !containsPort((NetPort)e[1]))
                 return false;
         }
+        // all edges must start and end on some port on a node in this graph
+//        Enumeration<NetEdge> edgeNum = _edges.elements();
+//        while (edgeNum.hasMoreElements()) {
+//            Object[] e = (Object[]) edgeNum.nextElement();
+//            if (!containsPort(e[0]) || !containsPort(e[1]))
+//                return false;
+//        }
         return true;
+    }
+
+    public boolean containsPort(NetPort port) {
+        return containsNodePort(port) || containsEdgePort(port);
+    }
+
+    // Not defined in interface?
+    public boolean containsNodePort(NetPort port) {
+        List<NetNode> nodes = getNodes();
+        if (nodes == null) {
+            return false;
+        }
+        for (int i = 0; i < nodes.size(); ++i) {
+            List<NetPort> ports = getPorts(nodes.get(i));
+            if (ports != null && ports.contains(port)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Not defined in interface?
+    public boolean containsEdgePort(NetPort port) {
+        List<NetNode> edges = getNodes();
+        if (edges == null) {
+            return false;
+        }
+        for (int i = 0; i < edges.size(); ++i) {
+            List<NetPort> ports = getPorts(edges.get(i));
+            if (ports != null && ports.contains(port)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // //////////////////////////////////////////////////////////////
     // GraphModel implementation
 
-    public List getNodes() {
+    @Override
+    public List<NetNode> getNodes() {
         return _nodes;
     }
 
-    public List getEdges() {
+    @Override
+    public List<Object[]> getEdges() {
         return _edges;
     }
 
-    public abstract List getPorts(Object nodeOrEdge);
+    public abstract List<NetPort> getPorts(Object nodeOrEdge);
 
-    public abstract Object getOwner(Object port);
+    public abstract NetNode getOwner(NetPort port);
 
-    public Object getSourcePort(Object edge) {
+    @Override
+    public NetPort getSourcePort(Object[] edge) {
         Object[] labeledEgde = (Object[]) edge;
-        return labeledEgde[0];
+        return (NetPort)labeledEgde[0];
     }
 
-    public Object getDestPort(Object edge) {
+    public NetPort getDestPort(Object[] edge) {
         Object[] labeledEgde = (Object[]) edge;
-        return labeledEgde[1];
+        return (NetPort)labeledEgde[1];
     }
 
-    public List getInEdges(Object port) {
-        Vector res = new Vector();
-        Enumeration edgeEnum = _edges.elements();
+    public List<Object[]> getInEdges(NetPort port) {
+        Vector<Object[]> res = new Vector<>();
+        Enumeration<Object[]> edgeEnum = _edges.elements();
         while (edgeEnum.hasMoreElements()) {
             Object[] e = (Object[]) edgeEnum.nextElement();
             if (port == e[1])
@@ -108,9 +163,9 @@ public abstract class AdjacencyListGraphModel extends MutableGraphSupport
         return res;
     }
 
-    public List getOutEdges(Object port) {
-        Vector res = new Vector();
-        Enumeration edgeEnum = _edges.elements();
+    public List<Object[]> getOutEdges(NetPort port) {
+        Vector<Object[]> res = new Vector<>();
+        Enumeration<Object[]> edgeEnum = _edges.elements();
         while (edgeEnum.hasMoreElements()) {
             Object[] e = (Object[]) edgeEnum.nextElement();
             if (port == e[0])
@@ -124,37 +179,39 @@ public abstract class AdjacencyListGraphModel extends MutableGraphSupport
 
     // needs-more-work: notifications
 
-    public boolean canAddNode(Object node) {
+    @Override
+    public boolean canAddNode(NetNode node) {
         return true;
     }
 
-    public boolean canAddEdge(Object edge) {
+    @Override
+    public boolean canAddEdge(Object[] edge) {
         return (edge instanceof Object[]) && ((Object[]) edge).length == 3;
     }
 
-    public void addNode(Object node) {
+    public void addNode(NetNode node) {
         _nodes.addElement(node);
     }
 
-    public void addEdge(Object edge) {
+    public void addEdge(Object[] edge) {
         if (canAddEdge(edge))
             _edges.addElement(edge);
     }
 
-    public void removeNode(Object node) {
+    public void removeNode(NetNode node) {
         _nodes.removeElement(node);
         // needs-more-work: remove associated edges
     }
 
-    public void removeEdge(Object edge) {
+    public void removeEdge(Object[] edge) {
         _edges.removeElement(edge);
     }
 
-    public boolean canConnect(Object srcNode, Object destNode) {
+    public boolean canConnect(NetNode srcNode, NetNode destNode) {
         return true;
     }
 
-    public Object connect(Object srcPort, Object destPort) {
+    public Object[] connect(NetPort srcPort, NetPort destPort) {
         return addLabeledEdge(srcPort, destPort, UNLABELED);
     }
 
@@ -166,7 +223,7 @@ public abstract class AdjacencyListGraphModel extends MutableGraphSupport
         return labeledEgde[2];
     }
 
-    public Object addLabeledEdge(Object srcPort, Object destPort, Object label) {
+    public Object[] addLabeledEdge(NetPort srcPort, NetPort destPort, Object label) {
         Object[] e = new Object[3];
         e[0] = srcPort;
         e[1] = destPort;
@@ -175,14 +232,19 @@ public abstract class AdjacencyListGraphModel extends MutableGraphSupport
         return e;
     }
 
-    public Vector getEdgesLabeled(Object label) {
-        Vector res = new Vector();
-        Enumeration edgeEnum = _edges.elements();
-        while (edgeEnum.hasMoreElements()) {
-            Object[] e = (Object[]) edgeEnum.nextElement();
-            if (label == getEdgeLabel(e))
-                res.addElement(e);
+    public Vector<Object[]> getEdgesLabeled(Object label) {
+        Vector<Object[]> res = new Vector<>();
+        for (Object[] edge : _edges) {
+            if (label == getEdgeLabel(edge))
+                res.addElement(edge);
         }
+//        Enumeration<NetEdge> edgeEnum = _edges.elements();
+//        while (edgeEnum.hasMoreElements()) {
+//            Object[] e = (Object[]) edgeEnum.nextElement();
+//            if (label == getEdgeLabel(e))
+//                res.addElement(e);
+//        }
         return res;
     }
+
 } /* end class AdjacencyListGraphModel */

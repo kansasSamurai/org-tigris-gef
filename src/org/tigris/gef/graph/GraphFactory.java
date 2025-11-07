@@ -29,7 +29,7 @@ package org.tigris.gef.graph;
  */
 public interface GraphFactory {
 
-    public GraphModel makeGraphModel();
+    public GraphModel<?,?,?> makeGraphModel();
 
     public Object makeNode();
 

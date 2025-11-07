@@ -49,7 +49,7 @@ package org.tigris.gef.graph;
 public interface BaseGraphModel<N, E, P> extends java.io.Serializable {
 
     /** Return the node or edge that owns the given port */
-    N getOwner(N port);
+    N getOwner(P port);
 
     /** Return one end of an edge */
     P getSourcePort(E edge);

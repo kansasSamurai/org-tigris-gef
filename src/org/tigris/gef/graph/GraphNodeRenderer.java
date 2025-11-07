@@ -38,7 +38,9 @@ import org.tigris.gef.presentation.FigNode;
  * TreeCellRenderer.
  */
 
+@SuppressWarnings("rawtypes")
 public interface GraphNodeRenderer extends java.io.Serializable {
+
     /**
      * Factory for a FigNode that can be used to represent the given node
      * 
@@ -52,8 +54,7 @@ public interface GraphNodeRenderer extends java.io.Serializable {
      *                an optional map of attributes to style the fig. 
      * @return the new FigNode
      */
-    FigNode getFigNodeFor(GraphModel graphmodel, Layer layer, Object node,
-            Map attributeMap);
+    FigNode getFigNodeFor(GraphModel<?,?,?> graphmodel, Layer layer, Object node, Map attributeMap);
 
     /**
      * Factory for a FigNode that can be used to represent the given node
@@ -65,4 +66,5 @@ public interface GraphNodeRenderer extends java.io.Serializable {
      *                new FigNode
      */
     FigNode getFigNodeFor(Object node, int x, int y, Map attributeMap);
+
 } /* end interface GraphNodeRenderer */

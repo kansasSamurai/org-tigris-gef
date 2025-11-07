@@ -40,6 +40,7 @@ import java.util.EventListener;
  */
 
 public interface GraphListener extends EventListener {
+
     void nodeAdded(GraphEvent e);
 
     void edgeAdded(GraphEvent e);
@@ -49,4 +50,5 @@ public interface GraphListener extends EventListener {
     void edgeRemoved(GraphEvent e);
 
     void graphChanged(GraphEvent e);
+
 } /* end interface GraphListener */

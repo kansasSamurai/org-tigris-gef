@@ -12,6 +12,7 @@ import java.util.*;
  * of data and representational objects.
  */
 public interface GraphController extends java.io.Serializable {
+
     /**
      * Add a new presentation to the list of known presentations. Each
      * presentation consists of a data object (referrer) and an object for its
@@ -44,13 +45,13 @@ public interface GraphController extends java.io.Serializable {
      */
     public boolean containsEdge(Object edge);
 
-    public List getNodes();
+    public List<?> getNodes();
 
-    public List getEdges();
+    public List<?> getEdges();
 
     /**
-     * Counts the number of presentations known to the GraphController for the
-     * given referrer.
+     * Counts the number of presentations known to the GraphController for the given referrer.
      */
     public int countPresentationsFor(Object referrer);
+
 } /* end interface GraphController */

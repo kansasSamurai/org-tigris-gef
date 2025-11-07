@@ -51,10 +51,9 @@ import org.tigris.gef.presentation.Fig;
 
 @SuppressWarnings("serial")
 public abstract class MutableGraphSupport implements 
-    MutableGraphModel<NetNode, NetEdge, NetPort>, 
-    java.io.Serializable {
+    MutableGraphModel<NetNode, NetEdge, NetPort>, java.io.Serializable {
 
-    private Vector _graphListeners;
+    private Vector<GraphListener> _graphListeners;
 
     private ConnectionConstrainer connectionConstrainer;
 
@@ -67,7 +66,7 @@ public abstract class MutableGraphSupport implements
         connectionConstrainer = cc;
     }
 
-    public List getGraphListeners() {
+    public List<GraphListener> getGraphListeners() {
         return _graphListeners;
     }
 
@@ -78,7 +77,7 @@ public abstract class MutableGraphSupport implements
      * Return a valid node in this graph TODO Should throw a GraphModelException
      * or InvalidArgumentException
      */
-    public NetNode createNode(String name, Hashtable args) {
+    public NetNode createNode(String name, @SuppressWarnings("rawtypes") Hashtable args) {
         Object newNode;
         try {
             newNode = Class.forName(name).newInstance();
@@ -128,9 +127,9 @@ public abstract class MutableGraphSupport implements
     }
 
     /**
-     * Determine if the two given ports can be connected by the given kind of
-     * edge. This delegates either to the registered ConnectionConstrainer or if
-     * unregistered then ignores edgeClass and calls canConnect(port,port).
+     * This version of canConnect is not defined in an interface and appears
+     * to be a duplicate of the interface implementation below.  Might be
+     * able to delete this method after some testing.
      * 
      * @param fromPort
      *                the source port for which to test
@@ -139,7 +138,7 @@ public abstract class MutableGraphSupport implements
      * @param edgeType
      *                An identifier indicating the type of edge to create
      */
-    public boolean canConnect(NetNode fromPort, NetNode toPort, NetEdge edgeType) {
+    public boolean canConnect(NetPort fromPort, NetPort toPort, NetEdge edgeType) {
         boolean canConnect = false;
         if (connectionConstrainer != null) {
             canConnect = connectionConstrainer.isConnectionValid(edgeType,
@@ -162,15 +161,28 @@ public abstract class MutableGraphSupport implements
      * @param edgeClass
      *                The edge class for which test
      */
-    public boolean canConnect(NetPort fromPort, NetPort toPort, Class edgeClass) {
+    @Override
+    public boolean canConnect(NetPort fromPort, NetPort toPort, Class<?> edgeClass) {
         boolean canConnect = false;
+
         if (connectionConstrainer != null) {
-            canConnect = connectionConstrainer.isConnectionValid(edgeClass,
-                    fromPort, toPort);
+            canConnect = connectionConstrainer.isConnectionValid(edgeClass, fromPort, toPort);
         } else {
+            // There does not seem to be an implementation of this interface method!!!
+            // creating an empty one below but this probably either a bug or an
+            // undocumented use case that barely ever gets here.
             canConnect = canConnect(fromPort, toPort);
         }
         return canConnect;
+    }
+
+    /**
+     * Defined by interface MutableGraphModel but never implemented.
+     * Not sure how this worked/compiled in legacy versions?
+     */
+    @Override
+    public boolean canConnect(NetPort fromPort, NetPort toPort ) {
+        return true;
     }
 
     /**
@@ -179,10 +191,27 @@ public abstract class MutableGraphSupport implements
     public void changeConnectedNode(NetNode newNode, NetNode oldNode, NetEdge edge, boolean isSource) {
     }
 
+    /** 
+     * Construct and add a new edge of a kind determined by the ports. 
+     * Sends a notification. 
+     * <p>
+     * !! IMPORTANT !! This method was never implemented in 0.13 so not sure
+     * exactly how/why this WAS working.  I have implemented it here
+     * for completeness but MAYBE it doesn't even need to be part of the
+     * MutableGraphModel interface?  I think that might be overkill to
+     * remove it, but just saying it must have worked without it, right?
+     */
+    @Override
+    public NetEdge connect(NetPort fromPort, NetPort toPort) {
+        // Intentionally Empty
+        return null;
+    }
+
     /**
-     * Contruct and add a new edge of the given kind. 
+     * Construct and add a new edge of the given kind. 
      * By default ignore edgeClass and call connect(port,port).
      */
+    @Override
     public NetEdge connect(NetPort fromPort, NetPort toPort, Object edgeClass) {
         return connect(fromPort, toPort);
     }
@@ -208,30 +237,34 @@ public abstract class MutableGraphSupport implements
      * @return The type of edge created (the same as <code>edgeClass</code> if
      *         we succeeded, <code>null</code> otherwise)
      */
-    public Object connect(NetPort fromPort, NetPort toPort, Class edgeType, Map styleAttributes) {
+    @Override
+    public NetEdge connect(NetPort fromPort, NetPort toPort, Object edgeType, Map<?, ?> attributes) {
         return connect(fromPort, toPort);
     }
 
     // //////////////////////////////////////////////////////////////
     // utility methods
 
+    @Override
     public boolean containsNode(NetNode node) {
         List<NetNode> nodes = getNodes();
         return nodes.contains(node);
     }
 
+    @Override
     public boolean containsEdge(NetEdge edge) {
         List<NetEdge> edges = getEdges();
         return edges.contains(edge);
     }
 
-    public boolean containsNodePort(Object port) {
+    // Not defined in interface?
+    public boolean containsNodePort(NetPort port) {
         List<NetNode> nodes = getNodes();
         if (nodes == null) {
             return false;
         }
         for (int i = 0; i < nodes.size(); ++i) {
-            List<NetNode> ports = getPorts(nodes.get(i));
+            List<NetPort> ports = getPorts(nodes.get(i));
             if (ports != null && ports.contains(port)) {
                 return true;
             }
@@ -239,13 +272,14 @@ public abstract class MutableGraphSupport implements
         return false;
     }
 
-    public boolean containsEdgePort(Object port) {
+    // Not defined in interface?
+    public boolean containsEdgePort(NetPort port) {
         List<NetNode> edges = getNodes();
         if (edges == null) {
             return false;
         }
         for (int i = 0; i < edges.size(); ++i) {
-            List<NetNode> ports = getPorts(edges.get(i));
+            List<NetPort> ports = getPorts(edges.get(i));
             if (ports != null && ports.contains(port)) {
                 return true;
             }
@@ -253,20 +287,24 @@ public abstract class MutableGraphSupport implements
         return false;
     }
 
-    public boolean containsPort(Object port) {
+    // Not defined in interface?
+    // shouldn't this be MutableGraphModel?
+    public boolean containsPort(NetPort port) {
         return containsNodePort(port) || containsEdgePort(port);
     }
 
     // //////////////////////////////////////////////////////////////
     // listener registration
 
+    @Override
     public void addGraphEventListener(GraphListener listener) {
         if (_graphListeners == null) {
-            _graphListeners = new Vector();
+            _graphListeners = new Vector<GraphListener>();
         }
         _graphListeners.addElement(listener);
     }
 
+    @Override
     public void removeGraphEventListener(GraphListener listener) {
         if (_graphListeners == null) {
             return;
@@ -285,7 +323,7 @@ public abstract class MutableGraphSupport implements
             return;
         }
         GraphEvent ge = new GraphEvent(this, node);
-        Enumeration listeners = _graphListeners.elements();
+        Enumeration<GraphListener> listeners = _graphListeners.elements();
         while (listeners.hasMoreElements()) {
             GraphListener listen = (GraphListener) listeners.nextElement();
             listen.nodeAdded(ge);
@@ -300,7 +338,7 @@ public abstract class MutableGraphSupport implements
             return;
         }
         GraphEvent ge = new GraphEvent(this, node);
-        Enumeration listeners = _graphListeners.elements();
+        Enumeration<GraphListener> listeners = _graphListeners.elements();
         while (listeners.hasMoreElements()) {
             GraphListener listen = (GraphListener) listeners.nextElement();
             listen.nodeRemoved(ge);
@@ -315,7 +353,7 @@ public abstract class MutableGraphSupport implements
             return;
         }
         GraphEvent ge = new GraphEvent(this, edge);
-        Enumeration listeners = _graphListeners.elements();
+        Enumeration<GraphListener> listeners = _graphListeners.elements();
         while (listeners.hasMoreElements()) {
             GraphListener listen = (GraphListener) listeners.nextElement();
             listen.edgeAdded(ge);
@@ -330,7 +368,7 @@ public abstract class MutableGraphSupport implements
             return;
         }
         GraphEvent ge = new GraphEvent(this, edge);
-        Enumeration listeners = _graphListeners.elements();
+        Enumeration<GraphListener> listeners = _graphListeners.elements();
         while (listeners.hasMoreElements()) {
             GraphListener listen = (GraphListener) listeners.nextElement();
             listen.edgeRemoved(ge);
@@ -345,7 +383,7 @@ public abstract class MutableGraphSupport implements
             return;
         }
         GraphEvent ge = new GraphEvent(this, null);
-        Enumeration listeners = _graphListeners.elements();
+        Enumeration<GraphListener> listeners = _graphListeners.elements();
         while (listeners.hasMoreElements()) {
             GraphListener listen = (GraphListener) listeners.nextElement();
             listen.graphChanged(ge);

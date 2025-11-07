@@ -35,7 +35,7 @@ import org.tigris.gef.base.Editor;
  * 
  * @see org.tigris.gef.graph.presentation.NetNode
  */
-
+@SuppressWarnings("rawtypes")
 public interface GraphNodeHooks extends java.io.Serializable {
 
     /**
@@ -85,4 +85,5 @@ public interface GraphNodeHooks extends java.io.Serializable {
     void setHighlight(boolean b);
 
     void deleteFromModel();
+    
 } /* end interface GraphNodeHooks */

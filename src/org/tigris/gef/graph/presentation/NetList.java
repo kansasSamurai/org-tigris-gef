@@ -91,7 +91,16 @@ public class NetList extends NetPrimitive implements java.io.Serializable {
         return edges;
     }
 
-    /** Reply the vector of nodes */
+    /** 
+     * Reply the vector of nodes
+     * <p>
+     * It looks like the Collection parameter is used to either return
+     * a new Collection (when null) or, when given, will add all nodes
+     * to the given Collection.
+     * <p>
+     * This is NOT part of an interface (currently).
+     * Not sure if it should be.
+     */
     public Collection<NetNode> getNodes(Collection<NetNode> c) {
         if (c == null) {
             return new Vector<NetNode>(nodes);
@@ -101,7 +110,16 @@ public class NetList extends NetPrimitive implements java.io.Serializable {
         }
     }
 
-    /** Reply the vector of edges */
+    /** 
+     * Reply the vector of edges 
+     * <p>
+     * It looks like the Collection parameter is used to either return
+     * a new Collection (when null) or, when given, will add all edges
+     * to the given Collection.
+     * <p>
+     * This is NOT part of an interface (currently).
+     * Not sure if it should be.
+     */
     public Collection<NetEdge> getEdges(Collection<NetEdge> c) {
         if (c == null) {
             return new Vector<NetEdge>(edges);

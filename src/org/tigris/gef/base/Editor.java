@@ -186,11 +186,11 @@ public class Editor implements Serializable, MouseListener,
     // constructors and related functions
 
     /** Construct a new Editor to edit the given NetList */
-    public Editor(GraphModel gm, JComponent jComponent) {
+    public Editor(GraphModel<?,?,?> gm, JComponent jComponent) {
         this(gm, jComponent, null);
     }
 
-    public Editor(GraphModel gm) {
+    public Editor(GraphModel<?,?,?> gm) {
         this(gm, null, null);
     }
 
@@ -202,7 +202,7 @@ public class Editor implements Serializable, MouseListener,
         this(d.getGraphModel(), null, d.getLayer());
     }
 
-    public Editor(GraphModel gm, JComponent jComponent, Layer lay) {
+    public Editor(GraphModel<?,?,?> gm, JComponent jComponent, Layer lay) {
         this.jComponent = jComponent;
         defineLayers(gm, lay);
 
@@ -221,7 +221,7 @@ public class Editor implements Serializable, MouseListener,
                 RenderingHints.VALUE_RENDER_QUALITY);
     }
 
-    protected void defineLayers(GraphModel gm, Layer lay) {
+    protected void defineLayers(GraphModel<?,?,?> gm, Layer lay) {
         _layerManager.addLayer(new LayerGrid());
         // _layerManager.addLayer(new LayerPageBreaks());
         // the following line is an example of another "grid"
@@ -362,14 +362,14 @@ public class Editor implements Serializable, MouseListener,
     }
 
     /** Return the net under the diagram being edited. */
-    public GraphModel getGraphModel() {
+    public GraphModel<?,?,?> getGraphModel() {
         Layer active = _layerManager.getActiveLayer();
         if (active instanceof LayerPerspective)
             return ((LayerPerspective) active).getGraphModel();
         return null;
     }
 
-    public void setGraphModel(GraphModel gm) {
+    public void setGraphModel(GraphModel<?,?,?> gm) {
         Layer active = _layerManager.getActiveLayer();
         if (active instanceof LayerPerspective)
             ((LayerPerspective) active).setGraphModel(gm);

@@ -48,14 +48,15 @@ import org.tigris.gef.graph.*;
  * @see NetEdge
  * @see NetPort
  */
+@SuppressWarnings("serial")
+public abstract class NetNode extends NetPrimitive 
+    implements GraphNodeHooks, java.io.Serializable {
 
-public abstract class NetNode extends NetPrimitive implements GraphNodeHooks,
-        java.io.Serializable {
     // //////////////////////////////////////////////////////////////
     // instance variables
 
     /** An array of the ports on this node */
-    private List _ports;
+    private List<NetPort> _ports;
 
     private static Log LOG = LogFactory.getLog(NetNode.class);
 
@@ -63,12 +64,12 @@ public abstract class NetNode extends NetPrimitive implements GraphNodeHooks,
     // constructors and related methods
 
     /**
-     * Construct a new node from the given default node and number of ports. The
-     * attributes of the default node will be used if they are not overridden in
+     * Construct a new node from the given default node and number of ports. 
+     * The attributes of the default node will be used if they are not overridden in
      * this node (i.e., nodes have attributes and there is a virual copy
      * relationship between some nodes).
      */
-    public NetNode(NetNode deft, List ports) {
+    public NetNode(NetNode deft, List<NetPort> ports) {
         _ports = ports;
     }
 
@@ -76,7 +77,7 @@ public abstract class NetNode extends NetPrimitive implements GraphNodeHooks,
      * Construct a new NetNode with no default attributes and no ports.
      */
     public NetNode() {
-        this(null, new ArrayList());
+        this(null, new ArrayList<>());
     }
 
     /**
@@ -87,7 +88,7 @@ public abstract class NetNode extends NetPrimitive implements GraphNodeHooks,
      * <p>
      * Needs-More-Work: what is the class protocol design here?
      */
-    public abstract void initialize(Hashtable args);
+    public abstract void initialize(@SuppressWarnings("rawtypes") Hashtable args);
 
     // //////////////////////////////////////////////////////////////
     // accessors
@@ -103,11 +104,11 @@ public abstract class NetNode extends NetPrimitive implements GraphNodeHooks,
     }
 
     /** reply my NetPorts. */
-    public List getPorts() {
+    public List<NetPort> getPorts() {
         return _ports;
     }
 
-    public void setPorts(List ports) {
+    public void setPorts(List<NetPort> ports) {
         _ports = ports;
     }
 
@@ -118,13 +119,12 @@ public abstract class NetNode extends NetPrimitive implements GraphNodeHooks,
     /** Remove this node from the underling connected graph model. */
     public void deleteFromModel() {
         LOG.debug("Deleting from model");
-        Iterator ps = _ports.iterator();
+        Iterator<NetPort> ps = _ports.iterator();
         while (ps.hasNext()) {
             ((NetPort) ps.next()).deleteFromModel();
         }
 
-        DefaultGraphModel gm = (DefaultGraphModel) Globals.curEditor()
-                .getGraphModel();
+        DefaultGraphModel gm = (DefaultGraphModel) Globals.curEditor().getGraphModel();
         gm.removeNode(this);
 
         firePropertyChange("disposed", false, true);
@@ -164,8 +164,9 @@ public abstract class NetNode extends NetPrimitive implements GraphNodeHooks,
      * another node. the arguments contain some info about what ports were
      * connected.
      */
-    public void postConnect(GraphModel gm, Object anotherNode, Object myPort,
-            Object otherPort) {
+    @Override
+    public void postConnect(@SuppressWarnings("rawtypes") GraphModel gm, 
+            Object anotherNode, Object myPort, Object otherPort) {
     }
 
     /**
@@ -173,8 +174,9 @@ public abstract class NetNode extends NetPrimitive implements GraphNodeHooks,
      * from another node. the arguments contain some info about what ports were
      * connected.
      */
-    public void postDisconnect(GraphModel gm, Object anotherNode,
-            Object myPort, Object otherPort) {
+    @Override
+    public void postDisconnect(@SuppressWarnings("rawtypes") GraphModel gm, 
+            Object anotherNode, Object myPort, Object otherPort) {
     }
 
     // //////////////////////////////////////////////////////////////
@@ -187,8 +189,9 @@ public abstract class NetNode extends NetPrimitive implements GraphNodeHooks,
      * NetPort.canConnectTo() just calls NetNode.canConnectTo(). By default
      * anything can be connected to anything.
      */
-    public boolean canConnectTo(GraphModel gm, Object otherNode,
-            Object otherPort, Object myPort) {
+    @Override
+    public boolean canConnectTo(@SuppressWarnings("rawtypes") GraphModel gm, 
+            Object otherNode, Object otherPort, Object myPort) {
         return true;
     }
 
@@ -196,9 +199,11 @@ public abstract class NetNode extends NetPrimitive implements GraphNodeHooks,
     // diagram-level hooks
 
     /**
-     * Do some application specific actions after the node is placed in a
-     * drawing area.
+     * Do some application specific actions after the node is 
+     * placed inside a drawing area.
      */
+    @Override
     public void postPlacement(Editor ed) {
     }
+
 } /* end class NetNode */

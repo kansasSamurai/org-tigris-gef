@@ -47,7 +47,7 @@ public interface MutableGraphModel<N, E, P> extends GraphModel<N, E, P> {
     boolean canAddNode(N node);
 
     /** Return a valid node in this graph */
-    N createNode(String name, Hashtable<?, ?> args);
+    N createNode(String name, Hashtable<Object, Object> args);
 
     /** Return true if the given object is a valid edge in this graph */
     boolean canAddEdge(E edge);
@@ -89,16 +89,16 @@ public interface MutableGraphModel<N, E, P> extends GraphModel<N, E, P> {
     void changeConnectedNode(N newNode, N oldNode, E edge, boolean isSource);
 
     /** Construct and add a new edge of a kind determined by the ports. Sends a notification. */
-    Object connect(P fromPort, P toPort);
+    E connect(P fromPort, P toPort);
 
     /** Construct and add a new edge with given attributes. Sends a notification. */
-    Object connect(P fromPort, P toPort, Class<?> edgeClass);
+    E connect(P fromPort, P toPort, Class<?> edgeClass);
 
     /** Construct and add a new edge with given attributes. Sends a notification. */
-    Object connect(P fromPort, P toPort, Object edgeType);
+    E connect(P fromPort, P toPort, Object edgeType);
 
     /** Construct and add a new edge with given attributes. Sends a notification. */
-    Object connect(P fromPort, P toPort, Object edgeType, Map<?, ?> attributes);
+    E connect(P fromPort, P toPort, Object edgeType, Map<?, ?> attributes);
 
     /** Returns true if handle can be enclosed into encloser. */
     boolean isEnclosable(Object handle, Object encloser);

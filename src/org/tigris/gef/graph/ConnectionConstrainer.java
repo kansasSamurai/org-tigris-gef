@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
+ * This had no original comment content; more research required.
  * 
  * @author Bob Tarling
  * @since 25-May-2004
@@ -13,8 +14,8 @@ import java.util.Map;
 abstract public class ConnectionConstrainer {
 
     /**
-     * A map of valid connections keyed by the connection type. The constructor
-     * builds this from the data in the VALID_CONNECTIONS array
+     * A map of valid connections keyed by the connection type. 
+     * The constructor builds this from the data in the VALID_CONNECTIONS array
      */
     protected Map _validConnectionMap = new HashMap();
 

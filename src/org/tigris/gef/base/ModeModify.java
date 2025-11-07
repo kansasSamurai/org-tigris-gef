@@ -85,7 +85,7 @@ public class ModeModify extends FigModifyingModeImpl {
     private int _deltaMouseX;
     private int _deltaMouseY;
 
-    private GraphModel graphModel;
+    private GraphModel<?,?,?> graphModel;
 
     // private ModifyCommand modifyCommand;
     //    

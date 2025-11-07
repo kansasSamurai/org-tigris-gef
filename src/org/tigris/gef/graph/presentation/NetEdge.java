@@ -42,8 +42,9 @@ import org.tigris.gef.graph.*;
  * user your own application-specific objects as edges.
  */
 
-public abstract class NetEdge extends NetPrimitive implements GraphEdgeHooks,
-        java.io.Serializable {
+@SuppressWarnings("serial")
+public abstract class NetEdge extends NetPrimitive 
+    implements GraphEdgeHooks, java.io.Serializable {
 
     private static final Log LOG = LogFactory.getLog(NetEdge.class);
 
@@ -55,12 +56,14 @@ public abstract class NetEdge extends NetPrimitive implements GraphEdgeHooks,
     protected NetPort _destPort;
 
     /**
-     * The ports that are part of this edge. Most of the time Edges do not have
-     * any ports. However, in some connected graph notations, users are allowed
-     * to attach notes to edges, or something that requrires edges to go from an
-     * edge to a node, or an edge to an edge.
+     * The ports that are part of this edge. 
+     * <p>
+     * Most of the time Edges do not have any ports. 
+     * However, in some connected graph notations, users are allowed
+     * to attach notes to edges, or something that requires edges to go 
+     * from an edge to a node, or an edge to an edge.
      */
-    protected Vector _ports;
+    protected Vector<NetPort> _ports;
 
     // //////////////////////////////////////////////////////////////
     // constructors
@@ -101,11 +104,11 @@ public abstract class NetEdge extends NetPrimitive implements GraphEdgeHooks,
         }
     }
 
-    public Vector getPorts() {
+    public Vector<NetPort> getPorts() {
         return _ports;
     }
 
-    public void setPorts(Vector v) {
+    public void setPorts(Vector<NetPort> v) {
         _ports = v;
     }
 
@@ -119,7 +122,7 @@ public abstract class NetEdge extends NetPrimitive implements GraphEdgeHooks,
      * this behavior should be in a constructor, but I want to use
      * Class#newInstance so constructors do not get any arguments.
      */
-    public boolean connect(GraphModel gm, Object srcPort, Object destPort) {
+    public boolean connect(@SuppressWarnings("rawtypes") GraphModel gm, Object srcPort, Object destPort) {
         NetPort srcNetPort = (NetPort) srcPort;
         NetPort destNetPort = (NetPort) destPort;
         if (!srcNetPort.canConnectTo(gm, destPort))
@@ -186,11 +189,13 @@ public abstract class NetEdge extends NetPrimitive implements GraphEdgeHooks,
     }
 
     /**
-     * Abstract method that returns a FigEdge to represent this edge in a given
-     * Layer. This is just a quick and simple way to do it if you use a
-     * DefaultGraphModel because DefaultgraphEdgeRenderer calls this. Override
-     * this method if you want your Edge subclasses to have a different look.
+     * Abstract method that returns a FigEdge to represent this edge in a given Layer. 
+     * <p>
+     * This is just a quick and simple way to do it if you use a
+     * DefaultGraphModel because DefaultgraphEdgeRenderer calls this. 
+     * Override this method if you want your Edge subclasses to have a different look.
      * The better way to do it is to implement your own GraphEdgeRenderer.
      */
     public abstract FigEdge makePresentation(Layer lay);
+
 } /* end class NetEdge */
