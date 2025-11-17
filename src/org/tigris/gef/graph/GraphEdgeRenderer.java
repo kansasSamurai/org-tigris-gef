@@ -35,6 +35,7 @@ import org.tigris.gef.presentation.FigEdge;
 
 /**
  * An interface for FigEdge factories. 
+ * <p>
  * Similiar in concept to the Swing class TreeCellRenderer.
  */
 

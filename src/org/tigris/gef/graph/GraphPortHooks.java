@@ -26,9 +26,10 @@ package org.tigris.gef.graph;
 import java.beans.*;
 
 /**
- * A set of methods that ports in a GraphModel may implement. If the objects you
- * use to represent ports implement this interface, they will get the
- * appropriate calls. NetPort implements these.
+ * A set of methods that ports in a GraphModel may implement.
+ * <p> 
+ * If the objects you use to represent ports implement this interface, 
+ * then they will get the appropriate calls. NetPort implements these.
  * 
  * @see org.tigris.gef.graph.presentation.NetPort
  */
@@ -43,18 +44,18 @@ public interface GraphPortHooks extends java.io.Serializable {
      * super.canConnectTo() would return false (i.e., deeper subclasses get more
      * constrained). I don't know if that is a good convention.
      */
-    boolean canConnectTo(GraphModel gm, Object anotherPort);
+    boolean canConnectTo(GraphModel<?, ?, ?> gm, Object anotherPort);
 
     /**
      * Application specific hook that is called after a successful connection.
      */
-    void postConnect(GraphModel gm, Object edge);
+    void postConnect(GraphModel<?, ?, ?> gm, Object edge);
 
     /**
      * Application specific hook that is called after a disconnection. (for now,
      * all disconnections are assumed legal).
      */
-    void postDisconnect(GraphModel gm, Object edge);
+    void postDisconnect(GraphModel<?, ?, ?> gm, Object edge);
 
     void addPropertyChangeListener(PropertyChangeListener l);
 
@@ -63,4 +64,5 @@ public interface GraphPortHooks extends java.io.Serializable {
     void setHighlight(boolean b);
 
     void deleteFromModel();
+    
 } /* end interface GraphPortHooks */

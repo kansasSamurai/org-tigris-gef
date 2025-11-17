@@ -50,10 +50,10 @@ import org.tigris.gef.undo.UndoManager;
 /**
  * This class handles painting and editing text Fig's in a LayerDiagram.
  * <p>
- * Within a text fig's outer dimensions, 
- * there is a colored border with a certain width (0 or more),
- * an internal margin between the text and the border,
- * and the text area itself. 
+ * Within a text fig's outer dimensions:<br>
+ * > there is a colored border with a certain width (0 or more),<br>
+ * > an internal margin between the text and the border,<br>
+ * > the text area itself. 
  * <p>
  * The internal margin and the text area are both colored in the text-fill color.
  * <p>
@@ -87,15 +87,16 @@ public class FigText extends Fig implements KeyListener, MouseListener {
      * The internal representation of a return character.
      */
     private static final char HARD_RETURN = '\n';
+
     /**
      * The internal representation of a return due to word wrap.
      */
     private static final char SOFT_RETURN = '\r';
 
     /** Font info. */
-    private Font _font = new Font("TimesRoman", Font.PLAIN, 10);
-    private transient FontMetrics _fm;
     private int _lineHeight;
+    private Font _font = new Font("Arial", Font.PLAIN, 10);
+    private transient FontMetrics _fm;
 
     /** Color of the actual text characters. */
     private Color _textColor = Color.black;
@@ -104,12 +105,9 @@ public class FigText extends Fig implements KeyListener, MouseListener {
      * Color to be drawn behind the actual text characters. Note that this will
      * be a smaller area than the bounding box which is filled with FillColor.
      */
-    private Color textFillColor = Color.white;
+    private Color _textFillColor = Color.white;
 
-    /**
-     * True if the area behind individual characters is to be filled with
-     * TextColor.
-     */
+    /** True if the area behind individual characters is to be filled with TextColor. */
     private boolean _textFilled = false;
 
     /** True if the text should be editable. False for read-only. */
@@ -121,8 +119,9 @@ public class FigText extends Fig implements KeyListener, MouseListener {
     private boolean _underline = false;
 
     /**
-     * True if word wrap is to take place when editing multi-line text. False by
-     * default (for backwards compatibility)
+     * True if word wrap is to take place when editing multi-line text. 
+     * <p>
+     * False by default (for backwards compatibility)
      */
     private boolean wordWrap = false;
 
@@ -131,13 +130,14 @@ public class FigText extends Fig implements KeyListener, MouseListener {
 
     /** Internal margins between the text and the edge of the rectangle. */
     private int _topMargin = 0;
-    private int _botMargin = 0;
+    private int _bottomMargin = 0;
     private int _leftMargin = 0;
     private int _rightMargin = 0;
 
     /** True if the FigText can only grow in size, never shrink. */
     private boolean _expandOnly = false;
 
+    /** True when in edit mode */
     private boolean _editMode = false;
 
     /** Text justification can be JUSTIFY_LEFT, JUSTIFY_RIGHT, or JUSTIFY_CENTER. */
@@ -288,12 +288,12 @@ public class FigText extends Fig implements KeyListener, MouseListener {
     }
 
     public Color getTextFillColor() {
-        return textFillColor;
+        return _textFillColor;
     }
 
     public void setTextFillColor(Color c) {
-        firePropChange("textFillColor", textFillColor, c);
-        textFillColor = c;
+        firePropChange("textFillColor", _textFillColor, c);
+        _textFillColor = c;
     }
 
     public boolean getTextFilled() {
@@ -359,12 +359,12 @@ public class FigText extends Fig implements KeyListener, MouseListener {
     }
 
     public int getBotMargin() {
-        return _botMargin;
+        return _bottomMargin;
     }
 
     public void setBotMargin(int m) {
-        firePropChange("botMargin", _botMargin, m);
-        _botMargin = m;
+        firePropChange("botMargin", _bottomMargin, m);
+        _bottomMargin = m;
         calcBounds();
     }
 
@@ -385,6 +385,31 @@ public class FigText extends Fig implements KeyListener, MouseListener {
     public void setRightMargin(int m) {
         firePropChange("rightMargin", _rightMargin, m);
         _rightMargin = m;
+        calcBounds();
+    }
+
+    /**
+     * Convenience method to set all margins to the same value at the same time.
+     * 
+     * @param m
+     */
+    public void setMargin(int m) {
+        this.setMargin(m, m, m, m);
+    }
+
+    /**
+     * Convenience method to set all margins to the same value at the same time.
+     * 
+     * @param top
+     * @param right
+     * @param bottom
+     * @param left
+     */
+    public void setMargin(int top, int right, int bottom, int left) {
+        _topMargin = top;
+        _rightMargin = right;
+        _bottomMargin = bottom;
+        _leftMargin = left;
         calcBounds();
     }
 
@@ -774,7 +799,7 @@ public class FigText extends Fig implements KeyListener, MouseListener {
         /* Paint the fill colour of the text area, 
          * which is everything inside the border: */
         if (_textFilled) {
-            g.setColor(textFillColor);
+            g.setColor(_textFillColor);
             g.fillRect(getX() + lineWidth, getY() + lineWidth, getWidth() - 2 * lineWidth, getHeight() - 2 * lineWidth);
         }
 
@@ -794,7 +819,7 @@ public class FigText extends Fig implements KeyListener, MouseListener {
         lines = new StringTokenizer(_curText, "" + HARD_RETURN + SOFT_RETURN,
                 true);
         while (lines.hasMoreTokens()
-                && chunkY <= getHeight() + getY() + _topMargin - _botMargin) {
+                && chunkY <= getHeight() + getY() + _topMargin - _bottomMargin) {
             String curLine = lines.nextToken();
             int chunkW = _fm.stringWidth(curLine);
             switch (_justification) {
@@ -931,7 +956,7 @@ public class FigText extends Fig implements KeyListener, MouseListener {
         overallW = Math.max(overallW, MIN_TEXT_WIDTH);
 
         /* Now add the areas around the text to return the complete size: */
-        overallH = overallH + _topMargin + _botMargin + 2 * getLineWidth();
+        overallH = overallH + _topMargin + _bottomMargin + 2 * getLineWidth();
         overallW = overallW + _leftMargin + _rightMargin + 2 * getLineWidth();
         d.width = overallW;
         d.height = overallH;
@@ -1055,7 +1080,7 @@ public class FigText extends Fig implements KeyListener, MouseListener {
         overallW = Math.max(overallW, MIN_TEXT_WIDTH);
 
         /* Now add the areas around the text to return the complete size: */
-        overallH = overallH + _topMargin + _botMargin + 2 * getLineWidth();
+        overallH = overallH + _topMargin + _bottomMargin + 2 * getLineWidth();
         overallW = overallW + _leftMargin + _rightMargin + 2 * getLineWidth();
 
         if (_editMode) {

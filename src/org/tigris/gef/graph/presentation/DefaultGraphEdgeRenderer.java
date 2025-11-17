@@ -35,29 +35,34 @@ import org.tigris.gef.presentation.FigEdge;
 import org.tigris.gef.graph.*;
 
 /**
- * An interface for FigEdge factories. Similiar in concept to the Swing class
- * TreeCellRenderer.
+ * An interface for FigEdge factories. 
+ * <p>
+ * Similiar in concept to the Swing class TreeCellRenderer.
  * 
  * @see org.tigris.gef.graph.presentation.NetEdge#presentationFor
  */
 
-public class DefaultGraphEdgeRenderer implements GraphEdgeRenderer,
-        java.io.Serializable {
+public class DefaultGraphEdgeRenderer 
+    implements GraphEdgeRenderer, java.io.Serializable {
 
     private static final long serialVersionUID = -9033499828050848988L;
 
     /** Return a Fig that can be used to represent the given Edge */
-    public FigEdge getFigEdgeFor(GraphModel graph, Layer lay, Object edge,
-            Map styleAttributes) {
+    @SuppressWarnings("rawtypes")
+    public FigEdge getFigEdgeFor(GraphModel<?, ?, ?> graph, Layer lay, Object edge, Map styleAttributes) {
         if (!(edge instanceof NetEdge))
             return null;
+
         return ((NetEdge) edge).presentationFor(lay);
     }
 
     /** Return a Fig that can be used to represent the given Edge */
+    @SuppressWarnings("rawtypes")
     public FigEdge getFigEdgeFor(Object edge, Map styleAttributes) {
         if (!(edge instanceof NetEdge))
             return null;
+
         return ((NetEdge) edge).presentationFor(null);
     }
+
 } /* end class DefaultGraphEdgeRenderer */

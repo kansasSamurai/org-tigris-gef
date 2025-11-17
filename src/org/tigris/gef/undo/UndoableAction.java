@@ -30,6 +30,7 @@ import javax.swing.Icon;
 /**
  * A base class for all undoable Actions
  */
+@SuppressWarnings("serial")
 public abstract class UndoableAction extends AbstractAction {
 
     /**
@@ -55,10 +56,18 @@ public abstract class UndoableAction extends AbstractAction {
     }
 
     /**
-     * Signals that a chain of mementos are about to start for a single user
-     * interaction.
+     * Signals that a chain of mementos are about to start for a single user interaction.
+     * <p>
+     * 0.14 - This is a bit poor design because subclasses must remember to 
+     * invoke super.actionPerformed().  Though refactoring this may be unwarranted
+     * at this time, a better option is to declare this final and it should invoke
+     * an abstract method like 'doActionPerformed(ActionEvent e)' that subclasses
+     * would put their code in THAT method instead of this one.
+     * 
+     * 
      */
     public void actionPerformed(ActionEvent e) {
         UndoManager.getInstance().startChain();
     }
+
 } /* end class AlignAction */

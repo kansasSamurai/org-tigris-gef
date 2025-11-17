@@ -71,12 +71,13 @@ public class Globals {
     // protected static TabPropFrame _tabPropFrame;
 
     /**
-     * String to display when nothing important is being displayed. By default
-     * the string " " is used. Some applications may want to change this to
-     * "Ready." It should not be set to "", because that can mess up window
-     * layouts, causing the status line to disappear.
+     * String to display when nothing important is being displayed. 
+     * <p>
+     * By default the string " " is used. Some applications may want to 
+     * change this to "Ready." It should not be set to "", because that 
+     * can mess up window layouts, causing the status line to disappear.
      */
-    public static String defaultStatus = "  ";
+    private static String defaultStatus = "  ";
 
     private static Log LOG = LogFactory.getLog(Globals.class);
 
@@ -110,13 +111,10 @@ public class Globals {
 
     public static boolean pastable = false;
 
-    /*
-     * The directory most recently used in an open or save dialog
-     * 
-     * @deprecated - will lose public visibility. Use getLastDirectory()
-     */
+    /* The directory most recently used in an open or save dialog */
     private static String LastDirectory = null;
 
+    /** Get the directory most recently used in an open or save dialog */
     public static String getLastDirectory() {
         if (LastDirectory == null) {
             LastDirectory = System.getProperty("user.home");
@@ -124,15 +122,15 @@ public class Globals {
         return LastDirectory;
     }
 
+    /** Set the directory most recently used in an open or save dialog */
     public static void setLastDirectory(String s) {
         LastDirectory = s;
     }
 
     /**
-     * Determines if tool tips be are shown on Figs in diagrams, including
-     * ToDoItem headlines.
+     * Determines if tool tips are shown on Figs in diagrams, including ToDoItem headlines.
      */
-    public static boolean ShowFigTips = true;
+    private static boolean ShowFigTips = true;
 
     public static boolean getShowFigTips() {
         return ShowFigTips;
@@ -143,7 +141,7 @@ public class Globals {
     }
 
     /** The place where status messages will be written. */
-    public static IStatusBar _StatusBar = null;
+    private static IStatusBar _StatusBar = null;
 
     /** Sets the place where status messages will be written. */
     public static void setStatusBar(IStatusBar sb) {
@@ -165,6 +163,11 @@ public class Globals {
     /** Sets the status to its default (blank) string. */
     public static void clearStatus() {
         showStatus(defaultStatus);
+    }
+
+    /** Set the string to be used as the default status. */
+    public static void setDefaultStatus(String status) {
+        defaultStatus = status;
     }
 
     /**
@@ -254,14 +257,15 @@ public class Globals {
 
     // //////////////////////////////////////////////////////////////
     // properties sheet
+    // 0.14 - not sure why these are commented out/empty?
 
     /**
-     * There is one global property sheet that shows details of the selected
-     * Fig.
+     * There is one global property sheet that shows details of the selected Fig.
      */
     // public static void setPropertySheet(TabPropFrame tpf) {
     // _tabPropFrame = tpf;
     // }
+
     /** Open the property sheet. */
     public static void startPropertySheet() {
         // if (_tabPropFrame == null) _tabPropFrame = new TabPropFrame();
@@ -277,19 +281,24 @@ public class Globals {
     // public static void propertySheetSubject(Fig f) {
     // if (_tabPropFrame != null) _tabPropFrame.select(f);
     // }
+
     /** Static initialisation: set up the prop sheet. */
     // static {
     // if (_tabPropFrame == null) _tabPropFrame = new TabPropFrame();
     // _tabPropFrame.show();
     // }
+
     /**
-     * Return an existing instance of class Frame. This is needed to create
-     * off-screen bit-maps. Needs-more-work: I think Swing keeps its own.
+     * Return an existing instance of class Frame. 
+     * <p>
+     * This is needed to create off-screen bit-maps. 
+     * Needs-more-work: I think Swing keeps its own.
      */
     public static Frame someFrame() {
         Editor ce = curEditor();
         if (ce == null)
             return null;
+
         Component c = ce.getJComponent();
         while (c != null && !(c instanceof Frame))
             c = c.getParent();
@@ -301,13 +310,13 @@ public class Globals {
 
     /**
      * True if the next global Mode should remain as the next global mode even
-     * after it has been given to one editor.
+     * after it has been given to an editor.
      */
     protected static boolean _sticky = false;
 
     /**
      * Set whether the next global mode should remain as the next global mode
-     * even after it has been given to one editor.
+     * even after it has been given to an editor.
      */
     public static void setSticky(boolean b) {
         _sticky = b;
@@ -327,7 +336,7 @@ public class Globals {
 
     /**
      * The allows a client application to provide a ModeFactory to create the
-     * default Mode for GEF. If not called the default will be ModeSelect
+     * default Mode for GEF. If not called, then the default will be ModeSelect.
      * 
      * @param modeFactory
      */
@@ -379,16 +388,18 @@ public class Globals {
     }
 
     /**
-     * Determine the next global mode. This is called when a mode finishes
-     * whatever it was meant to accomplish. If the sticky flag is set, the
-     * current mode stays the next global mode. Otherwise the defaultMode
-     * becomes the next global mode.
+     * Determine the next global mode. 
+     * <p>
+     * This is called when a mode finishes whatever it was meant to accomplish. 
+     * If the sticky flag is set, the current mode stays the next global mode. 
+     * Otherwise the defaultMode becomes the next global mode.
      * 
      * @see Mode#done
      */
     public static Mode nextMode() {
         if (!_sticky)
             _mode = defaultMode();
+
         return _mode;
     }
 
@@ -396,14 +407,14 @@ public class Globals {
     // Methods that keep track of the current editor
 
     /** The Editor that most recently contained the mouse. */
-    protected static Editor _curEditor;
+    private static Editor _curEditor;
 
     /** Set the current Editor. */
     public static void curEditor(Editor ce) {
         _curEditor = ce;
     }
 
-    /** Reply the Editor that most recently contained the mouse. */
+    /** Return the Editor that most recently contained the mouse. */
     public static Editor curEditor() {
         return _curEditor;
     }
@@ -412,26 +423,28 @@ public class Globals {
     // a light-weight data-structure for tracking PropertyChangeListeners
 
     /**
-     * A global dictionary of PropertyChangeListeners for Figs. Most Figs will
-     * not have any listeners at any given moment, so I did not want to allocate
-     * an instance variable to hold listeners. Instead I use this global
-     * Hashtable with Figs and keys and arrays of up to 4 listeners as values.
+     * A global dictionary of PropertyChangeListeners for Figs. 
      * <p>
-     * 
+     * Most Figs will not have any listeners at any given moment, so I did not 
+     * want to allocate an instance variable to hold listeners. Instead I use 
+     * this global Hashtable with Figs and keys and arrays of up to 4 listeners 
+     * as values.
+     * <p>
      * Note: It is important that all listeners eventually remove themselves by
      * calling removePropertyChangeListener. Otherwise this table will keep
      * pointers that can reduce garbage collection.
      */
+    private static Hashtable<Object, PropertyChangeListener[]> _pcListeners = new Hashtable<>();
 
-    protected static Hashtable<Object, PropertyChangeListener[]> _pcListeners = new Hashtable<>();
-
-    protected static PropertyChangeListener universalListener = null;
+    private static PropertyChangeListener universalListener = null;
 
     /** The most listeners a Fig can have, 4. */
     public static int MAX_LISTENERS = 4;
 
     /**
-     * Add a listener to a Fig. Now the listener will get notifications of all
+     * Add a listener to a Fig. 
+     * <p>
+     * Now the listener will get notifications of all
      * property change events from that Fig.
      */
     public static void addPropertyChangeListener(Object src, PropertyChangeListener l) {
@@ -454,8 +467,7 @@ public class Globals {
             LOG.debug("ran out of listeners!");
     }
 
-    public static void addUniversalPropertyChangeListener(
-            PropertyChangeListener pcl) {
+    public static void addUniversalPropertyChangeListener(PropertyChangeListener pcl) {
         universalListener = pcl;
     }
 
@@ -463,13 +475,12 @@ public class Globals {
         universalListener = null;
     }
 
-    public static void removePropertyChangeListener(Object s,
-            PropertyChangeListener listener) {
-        PropertyChangeListener listeners[] = (PropertyChangeListener[]) _pcListeners
-                .get(s);
-        boolean found = false;
+    public static void removePropertyChangeListener(Object s, PropertyChangeListener listener) {
+        PropertyChangeListener listeners[] = (PropertyChangeListener[]) _pcListeners.get(s);
         if (listeners == null)
             return;
+
+        boolean found = false;
         for (int i = 0; i < MAX_LISTENERS; ++i) {
             if (listeners[i] == listener) {
                 listeners[i] = null;
@@ -479,9 +490,12 @@ public class Globals {
         if (LOG.isDebugEnabled() && !found) {
             LOG.debug("listener not found!");
         }
-        for (int i = 0; i < MAX_LISTENERS; ++i)
-            if (listeners[i] != null)
+
+        for (int i = 0; i < MAX_LISTENERS; ++i) {
+            if (listeners[i] != null) 
                 return;
+        }
+
         // s has no listeners, keep Hashtable size reasonable
         _pcListeners.remove(s);
     }
@@ -514,6 +528,7 @@ public class Globals {
                     listeners[i].propertyChange(evt);
             }
         }
+
         if (universalListener != null)
             universalListener.propertyChange(evt);
     }

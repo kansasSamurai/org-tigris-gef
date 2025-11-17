@@ -118,9 +118,22 @@ public abstract class FigEdge extends Fig implements Highlightable, GraphEdge {
     // constructors
 
     /**
-     * Construct a new FigEdge with the given source and destination port figs
-     * and FigNodes. The new FigEdge will represent the given edge (an object
+     * Construct a new FigEdge.
+     * <p>
+     * The given source and destination FigPorts and FigNodes. 
+     * This FigEdge will represent the given edge (an object
      * from some underlying model).
+     * TODO 0.14 possibly I just have not found it but this constructor does not
+     * seem to be used/used much.  It looks like it should be the PRIMARY 
+     * way to construct a new FigEdge.  More research required.
+     * TODO 0.14 shouldn't the edge param be a GraphEdge?  that may have side
+     * effects but should be investigated
+     * 
+     * @param s the Fig of the source port
+     * @param d the Fig of the destination port
+     * @param sfn the Fig of the source node
+     * @param dfn the Fig of the destination node
+     * @param edge the Edge model object represented by this Fig
      */
     public FigEdge(Fig s, Fig d, FigNode sfn, FigNode dfn, Object edge) {
         setSourcePortFig(s);
@@ -298,16 +311,12 @@ public abstract class FigEdge extends Fig implements Highlightable, GraphEdge {
     // //////////////////////////////////////////////////////////////
     // accessors
 
-    /**
-     * Return the Fig that will be drawn. USED BY PGML.tee
-     */
+    /** Return the Fig that will be drawn. USED BY PGML.tee */
     final public Fig getFig() {
         return routeFig;
     }
 
-    /**
-     * The first point ion an edge USED BY PGML.tee
-     */
+    /** The first point on an edge USED BY PGML.tee */
     final public Point getFirstPoint() {
         return routeFig.getFirstPoint();
     }
@@ -561,18 +570,18 @@ public abstract class FigEdge extends Fig implements Highlightable, GraphEdge {
     }
 
     /**
-     * Abstract method to make the Fig that will be drawn for this FigEdge. In
-     * FigEdgeLine this method constructs a FigLine. In FigEdgeRectiline, this
-     * method constructs a FigPoly.
+     * Abstract method to make the Fig that will be drawn for this FigEdge. 
+     * <p>
+     * In FigEdgeLine this method constructs a FigLine. 
+     * In FigEdgeRectiline, this method constructs a FigPoly.
      */
     protected abstract Fig makeEdgeFig();
 
     /**
      * Paint this FigEdge. TODO: take Highlight into account
      */
-    public void paint(Graphics graphicContext) {
+    public void paint(Graphics g) {
         // computeRoute();
-        Graphics g = (Graphics) graphicContext;
         routeFig.paint(g);
         paintArrowHeads(g);
         paintPathItems(g);

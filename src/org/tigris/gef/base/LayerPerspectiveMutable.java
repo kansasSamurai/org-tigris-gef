@@ -36,40 +36,49 @@
 package org.tigris.gef.base;
 
 import org.tigris.gef.graph.*;
+import org.tigris.gef.graph.presentation.NetNode;
+import org.tigris.gef.graph.presentation.NetPort;
 import org.tigris.gef.presentation.*;
 
+/**
+ * 
+ *
+ */
 public class LayerPerspectiveMutable extends LayerPerspective {
 
     private static final long serialVersionUID = 4692683431762315041L;
 
     /** The underlying connected graph to be visualized. */
-    private MutableGraphModel mutableGraphModel;
+    private MutableGraphModel<NetNode, GraphEdge, NetPort> mutableGraphModel;
 
     // //////////////////////////////////////////////////////////////
     // constructors
 
-    public LayerPerspectiveMutable(String name, MutableGraphModel mgm) {
-        super(name, (GraphModel) mgm);
+    public LayerPerspectiveMutable(String name, MutableGraphModel<NetNode, GraphEdge, NetPort> mgm) {
+        super(name, (GraphModel<NetNode, GraphEdge, NetPort>) mgm);
         mutableGraphModel = mgm;
     }
 
     // //////////////////////////////////////////////////////////////
     // accessors
 
-    public GraphModel getGraphModel() {
-        return (GraphModel) getMutableGraphModel();
+    public GraphModel<NetNode, GraphEdge, NetPort> getGraphModel() {
+        return getMutableGraphModel();
     }
 
-    public void setGraphModel(GraphModel gm) {
-        setMutableGraphModel((MutableGraphModel) gm);
+    @Override
+    public void setGraphModel(GraphModel<NetNode, GraphEdge, NetPort> gm) {
+        setMutableGraphModel((MutableGraphModel<NetNode, GraphEdge, NetPort>) gm);
     }
 
-    public MutableGraphModel getMutableGraphModel() {
+    // should probably be specified in an interface
+    public MutableGraphModel<NetNode, GraphEdge, NetPort> getMutableGraphModel() {
         return mutableGraphModel;
     }
 
-    public void setMutableGraphModel(MutableGraphModel mgm) {
-        super.setGraphModel((GraphModel) mgm);
+    // should probably be specified in an interface
+    public void setMutableGraphModel(MutableGraphModel<NetNode, GraphEdge, NetPort> mgm) {
+        super.setGraphModel(mgm);
         mutableGraphModel = mgm;
     }
 
@@ -82,7 +91,7 @@ public class LayerPerspectiveMutable extends LayerPerspective {
         // To allow multiple views in one diagram, remove the following two
         // lines.
         if (fig instanceof FigNode && contains(fig)
-                && mutableGraphModel.containsNode(owner)
+                && mutableGraphModel.containsNode((NetNode) owner)
                 && fig.getLayer() == this) {
             // When a new node is created (using
             // GraphModelEvents), the node is first
@@ -107,12 +116,13 @@ public class LayerPerspectiveMutable extends LayerPerspective {
         super.remove(f);
         Object owner = f.getOwner();
         if (owner != null) {
-            if (f instanceof FigEdge && mutableGraphModel.containsEdge(owner)) {
-                mutableGraphModel.removeEdge(owner);
+            if (f instanceof FigEdge && mutableGraphModel.containsEdge((GraphEdge) owner)) {
+                mutableGraphModel.removeEdge((GraphEdge) owner);
             } else if (f instanceof FigNode
-                    && mutableGraphModel.containsNode(owner)) {
-                mutableGraphModel.removeNode(owner);
+                    && mutableGraphModel.containsNode((NetNode) owner)) {
+                mutableGraphModel.removeNode((NetNode) owner);
             }
         }
     }
+
 } /* end class LayerPerspectiveMutable */

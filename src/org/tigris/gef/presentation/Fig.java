@@ -1145,9 +1145,12 @@ public abstract class Fig implements DiagramElement, Cloneable,
 
     /**
      * USED BY PGML.tee
+     * Note: 0.14 - This used to return NULL but the PGML export would throw
+     * the equivalent of an NPE.  Returning THIS was a guess... it does seem to work.
+     * I even looked at the exported PGML/XML and it seems well formed.
      */
     public Fig getEnclosingFig() {
-        return null;
+        return this;
     }
 
     /**
@@ -1270,15 +1273,9 @@ public abstract class Fig implements DiagramElement, Cloneable,
         if (getGroup() != null) {
             String gID = getGroup().getId();
             if (getGroup() instanceof FigGroup) {
-                return gID
-                        + "."
-                        + ((List<?>) ((FigGroup) getGroup()).getFigs())
-                                .indexOf(this);
+                return gID + "." + ((List<?>) ((FigGroup) getGroup()).getFigs()).indexOf(this);
             } else if (getGroup() instanceof FigEdge) {
-                return gID
-                        + "."
-                        + (((List<?>) ((FigEdge) getGroup()).getPathItemFigs())
-                                .indexOf(this) + 1);
+                return gID + "." + (((List<?>) ((FigEdge) getGroup()).getPathItemFigs()).indexOf(this) + 1);
             } else {
                 return gID + ".0";
             }

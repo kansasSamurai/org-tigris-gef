@@ -32,9 +32,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.tigris.gef.event.GraphSelectionListener;
 import org.tigris.gef.event.ModeChangeListener;
+import org.tigris.gef.graph.GraphEdge;
 import org.tigris.gef.graph.GraphEdgeRenderer;
 import org.tigris.gef.graph.GraphModel;
 import org.tigris.gef.graph.GraphNodeRenderer;
+import org.tigris.gef.graph.presentation.NetNode;
+import org.tigris.gef.graph.presentation.NetPort;
 import org.tigris.gef.presentation.Fig;
 import org.tigris.gef.presentation.FigText;
 import org.tigris.gef.presentation.FigTextEditor;
@@ -60,24 +63,28 @@ import java.util.List;
 /**
  * This class provides an editor for manipulating graphical documents. 
  * <p>
- * The editor is the central class of the graph editing framework, but it does not
- * contain very much code. It can be this small because all the net-level
- * models, graphical objects, layers, editor modes, editor commands, and
- * supporting dialogs and frames are implemented in their own classes.
+ * The editor is the central class of the graph editing framework, 
+ * but it does not contain very much code. It can be this small because 
+ * all the net-level models, graphical objects, layers, editor modes, editor commands, 
+ * and supporting dialogs and frames are implemented in their own classes.
  * <p>
- * An Editor's LayerManager has a stack of Layers. Normally Layers contain
- * Figs. Some Figs are linked to NetPrimitives. When Figs are selected the
- * SelectionManager holds a Selection object. The behaviour of the Editor is
- * determined by its current Mode. The Editor's ModeManager keeps track of all
- * the active Modes. Modes interpret user input events and decide how to change
- * the state of the diagram. The Editor acts as a shell for executing Commands
- * that modify the document or the Editor itself.
+ * An Editor's LayerManager has a stack of Layers... 
+ * ... In turn, Layers normally contain Figs. 
+ * ... Some Figs are linked to NetPrimitives. 
+ *     ... When Figs are selected, the SelectionManager holds a Selection object. 
+ * <p>
+ * The behaviour of the Editor is determined by its current Mode... 
+ * ... The Editor's ModeManager keeps track of all the active Modes. 
+ * ... Modes interpret user input events and decide how to change the state of the diagram. 
+ * <p>
+ * The Editor acts as a shell for executing Commands...
+ * ... Commands modify the document or the Editor itself.
  * <p>
  * When Figs change visible state (e.g. color, size, or position) they tell
  * their Layer that they are damageAll and need to be repainted. The Layer tells
  * all Editors that are editing the Fig.
  * <p>
- * A major goal of GEF is to make it easy to extend the framework for
+ * A major goal of GEF is to make it easy to extend the framework for an
  * application to a specific domain. It is very important that new functionality
  * can be added without modifying what is already there. The fairly small size
  * of the Editor is a good indicator that it is not a bottleneck for enhancing
@@ -86,20 +93,18 @@ import java.util.List;
  * 
  * @see Layer
  * @see Fig
- * @see org.tigris.gef.graph.presentation.NetPrimitive
  * @see Selection
  * @see Mode
  * @see Cmd
+ * @see org.tigris.gef.graph.presentation.NetPrimitive
  */
 
 public class Editor implements Serializable, MouseListener,
         MouseMotionListener, KeyListener {
+
     // //////////////////////////////////////////////////////////////
     // constants
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 2324579872610012639L;
 
     /**
@@ -128,16 +133,15 @@ public class Editor implements Serializable, MouseListener,
     protected ModeManager _modeManager = new ModeManager(this);
 
     /**
-     * This points to the document object that the user is working on. At this
-     * point the framework does not have a very strong concept of document and
-     * there is no class Document. For now the meaning of this pointer is in the
-     * hands of the person applying this framework to an application.
+     * This points to the document object that the user is working on. 
+     * <p>
+     * At this point the framework does not have a very strong concept of document 
+     * and there is no class Document. For now the meaning of this pointer is 
+     * in the hands of the person applying this framework to an application.
      */
     protected Object _document;
 
-    /**
-     * All the selection objects for what the user currently has selected.
-     */
+    /** All the selection objects for what the user currently has selected. */
     protected SelectionManager _selectionManager = new SelectionManager(this);
 
     /** The LayerManager for this Editor. */
@@ -158,6 +162,9 @@ public class Editor implements Serializable, MouseListener,
     /** Should elements in this editor be selectable? */
     protected boolean _canSelectElements = true;
 
+    /** The rendering hints used during the paint process. */
+    private RenderingHints _renderingHints = new RenderingHints(null);
+
     /** Should this editor be repainted? */
     private transient boolean _shouldPaint = true;
 
@@ -173,8 +180,6 @@ public class Editor implements Serializable, MouseListener,
     /** The ancestor of _jComponent that has a peer that can create an image. */
     private transient Component _peer_component = null;
 
-    private RenderingHints _renderingHints = new RenderingHints(null);
-
     /** The context menu for this editor */
     private transient JPopupMenu _popup = null;
 
@@ -186,11 +191,11 @@ public class Editor implements Serializable, MouseListener,
     // constructors and related functions
 
     /** Construct a new Editor to edit the given NetList */
-    public Editor(GraphModel<?,?,?> gm, JComponent jComponent) {
+    public Editor(GraphModel<NetNode, GraphEdge, NetPort> gm, JComponent jComponent) {
         this(gm, jComponent, null);
     }
 
-    public Editor(GraphModel<?,?,?> gm) {
+    public Editor(GraphModel<NetNode, GraphEdge, NetPort> gm) {
         this(gm, null, null);
     }
 
@@ -202,7 +207,7 @@ public class Editor implements Serializable, MouseListener,
         this(d.getGraphModel(), null, d.getLayer());
     }
 
-    public Editor(GraphModel<?,?,?> gm, JComponent jComponent, Layer lay) {
+    public Editor(GraphModel<NetNode, GraphEdge, NetPort> gm, JComponent jComponent, Layer lay) {
         this.jComponent = jComponent;
         defineLayers(gm, lay);
 
@@ -219,9 +224,18 @@ public class Editor implements Serializable, MouseListener,
                 RenderingHints.VALUE_FRACTIONALMETRICS_ON);
         _renderingHints.put(RenderingHints.KEY_RENDERING,
                 RenderingHints.VALUE_RENDER_QUALITY);
+        // 0.14 additions (see also, Fig.java)
+//        _renderingHints.put(RenderingHints.KEY_RENDERING, 
+//                RenderingHints.VALUE_RENDER_QUALITY);
+        _renderingHints.put(RenderingHints.KEY_STROKE_CONTROL, 
+                RenderingHints.VALUE_STROKE_PURE);
+        _renderingHints.put(RenderingHints.KEY_ANTIALIASING, 
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        _renderingHints.put(RenderingHints.KEY_TEXT_ANTIALIASING, 
+                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
     }
 
-    protected void defineLayers(GraphModel<?,?,?> gm, Layer lay) {
+    protected void defineLayers(GraphModel<NetNode, GraphEdge, NetPort> gm, Layer lay) {
         _layerManager.addLayer(new LayerGrid());
         // _layerManager.addLayer(new LayerPageBreaks());
         // the following line is an example of another "grid"
@@ -326,10 +340,12 @@ public class Editor implements Serializable, MouseListener,
     }
 
     /**
-     * Set this Editor's drawing scale. A value of 1.0 draws at 1 to 1. A value
-     * greater than 1 draws larger, less than 1 draws smaller. Conceptually the
-     * scale is an attribute of JGraph, but the editor needs to know it to paint
-     * accordingly.
+     * Set this Editor's drawing scale. 
+     * <p>
+     * A value of 1.0 draws at 1 to 1. 
+     * A value greater than 1 draws larger... less than 1 draws smaller. 
+     * Conceptually the scale is an attribute of JGraph, but the editor 
+     * needs to know it to paint accordingly.
      */
     public void setScale(double scale) {
         _scale = scale;
@@ -362,14 +378,14 @@ public class Editor implements Serializable, MouseListener,
     }
 
     /** Return the net under the diagram being edited. */
-    public GraphModel<?,?,?> getGraphModel() {
+    public GraphModel<NetNode, GraphEdge, NetPort> getGraphModel() {
         Layer active = _layerManager.getActiveLayer();
         if (active instanceof LayerPerspective)
             return ((LayerPerspective) active).getGraphModel();
         return null;
     }
 
-    public void setGraphModel(GraphModel<?,?,?> gm) {
+    public void setGraphModel(GraphModel<NetNode, GraphEdge, NetPort> gm) {
         Layer active = _layerManager.getActiveLayer();
         if (active instanceof LayerPerspective)
             ((LayerPerspective) active).setGraphModel(gm);
@@ -560,8 +576,9 @@ public class Editor implements Serializable, MouseListener,
     }
 
     /**
-     * Mark the entire visible area of this Editor as damageAll. Currently
-     * called when a LayerGrid is adjusted. This will be useful for
+     * Mark the entire visible area of this Editor as damageAll. 
+     * <p>
+     * Currently called when a LayerGrid is adjusted. This will be useful for
      * ActionRefresh if I get around to it. Also some Actions may prefer to do
      * this instead of keeping track of all modified objects, but only in cases
      * where most of the visible area is expected to change anyway.
@@ -578,9 +595,8 @@ public class Editor implements Serializable, MouseListener,
     // display methods
 
     /**
-     * Paints the graphs nodes by calling paint() on layers, selections, and
-     * mode.
-     * 
+     * Paints the graphs nodes by calling paint() on layers via LayerManager.
+     * If the editor can select elements, then it also paint selections and mode.
      */
     public void paint(Graphics g) {
         if (!shouldPaint())
@@ -591,12 +607,14 @@ public class Editor implements Serializable, MouseListener,
             g2.setRenderingHints(_renderingHints);
             g2.scale(_scale, _scale);
         }
+
         getLayerManager().paint(g);
-        // getLayerManager().getActiveLayer().paint(g);
+
         if (_canSelectElements) {
             _selectionManager.paint(g);
             _modeManager.paint(g);
         }
+
     }
 
     public void print(Graphics g) {
@@ -604,10 +622,12 @@ public class Editor implements Serializable, MouseListener,
     }
 
     /**
-     * Scroll the JGraph so that the given point is visible. This is used when
-     * the user wants to drag an object a long distance. This is commented out
-     * right now because it causes too many out of memory errors and the size of
-     * the JGraphInternalPanel is not set properly.
+     * Scroll the JGraph so that the given point is visible. 
+     * <p>
+     * This is used when the user wants to drag an object a long distance.
+     * <p>
+     * NOTE: 0.13 This is commented out right now because it causes too many 
+     * out of memory errors and the size of the JGraphInternalPanel is not set properly.
      */
     public void scrollToShow(int x, int y) {
         // Component c = getJComponent();
@@ -940,14 +960,17 @@ public class Editor implements Serializable, MouseListener,
     // Command-related methods
 
     /**
-     * The editor acts as a shell for Cmds. This method executes the given Cmd
-     * in response to the given event (some Cmds look at the Event that invoke
-     * them, even though this is discouraged). The Editor executes the Cmd in a
-     * safe environment so that buggy actions cannot crash the whole Editor.
+     * The editor acts as a shell for Cmds. 
+     * <p>
+     * This method executes the given Cmd in response to the given event 
+     * (some Cmds look at the Event that invoked them, even though this is discouraged). 
+     * The Editor executes the Cmd in a safe environment so that 
+     * buggy actions cannot crash the whole Editor.
      */
     public void executeCmd(Cmd c, InputEvent ie) {
         if (c == null)
             return;
+
         try {
             c.doIt();
         } catch (java.lang.Throwable ex) {
@@ -960,8 +983,8 @@ public class Editor implements Serializable, MouseListener,
     // notifications and updates
 
     /**
-     * The given Fig was removed from the diagram this Editor is showing. Now
-     * update the display.
+     * The given Fig was removed from the diagram this Editor is showing...
+     * ... so update the display.
      */
     public void removed(Fig f) {
         _selectionManager.deselect(f);
@@ -984,4 +1007,5 @@ public class Editor implements Serializable, MouseListener,
     public Selection getCurrentSelection() {
         return _curSel;
     }
+
 }

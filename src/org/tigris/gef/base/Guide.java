@@ -39,14 +39,14 @@ import java.awt.*;
  * @see GuideGrid
  */
 
+@SuppressWarnings("serial")
 public abstract class Guide implements java.io.Serializable {
 
     // //////////////////////////////////////////////////////////////
     // geometric constraints
 
     /**
-     * Return a NEW Point that is close to p and on the guideline (e.g.,
-     * gridline).
+     * Return a NEW Point that is close to p and on the guideline/gridline.
      */
     public final Point snapTo(Point p) {
         Point res = new Point(p.x, p.y);
@@ -55,8 +55,8 @@ public abstract class Guide implements java.io.Serializable {
     }
 
     /**
-     * Modify the given point to satisfy guide conditions (e.g. be on a
-     * gridline).
+     * Modify the given point to satisfy guide conditions 
+     * (i.e. be on a gridline).
      */
     public abstract void snap(Point p);
 
@@ -68,4 +68,5 @@ public abstract class Guide implements java.io.Serializable {
      */
     public void adjust() {
     };
+
 } /* end class Guide */

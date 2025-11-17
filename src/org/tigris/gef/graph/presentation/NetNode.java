@@ -40,10 +40,11 @@ import org.tigris.gef.presentation.*;
 import org.tigris.gef.graph.*;
 
 /**
- * This class models a node in our underlying connected graph model. Nodes have
- * ports that are their connection points to other nodes. This class is used by
- * DefaultGraphModel, if you implement your own GraphModel, you can use your own
- * application-specific objects as nodes.
+ * This class models a node in our underlying connected graph model. 
+ * <p>
+ * Nodes have ports that are their connection points to other nodes. 
+ * This class is used by DefaultGraphModel. If you implement your own GraphModel, 
+ * you can use your own application-specific objects as nodes.
  * 
  * @see NetEdge
  * @see NetPort
@@ -134,25 +135,30 @@ public abstract class NetNode extends NetPrimitive
     // Visualization related methods
 
     /**
-     * Reply the FigNode that is appropriate for visualizing this node in the
-     * given Layer. If no such FigNode already exists, instanciate a new one.
+     * Return the FigNode that is appropriate for visualizing this node in the
+     * given Layer. If no such FigNode already exists, instantiate a new one.
+     * <p>
+     * i.e. this will find a current Fig if it exists, while 
+     * makePresentationLayer() will ALWAYS construct a new Fig.
      */
     public FigNode presentationFor(Layer lay) {
         FigNode fn;
+
         if (lay != null) {
             fn = (FigNode) lay.presentationFor(this);
             if (fn != null)
                 return fn;
         }
         fn = makePresentation(lay);
+
         return fn;
     }
 
     /**
-     * Construct and return a new FigNode to present this NetNode in the given
-     * Layer. A default implementation is supplied as an example, but all
-     * subclasses should override this method. NetPorts of this NetNode should
-     * be associated with individual Figs that make up the FigNode.
+     * Construct a new FigNode to present this NetNode in the given Layer. 
+     * <p>
+     * All subclasses should override this method. NetPorts of this NetNode 
+     * should be associated with individual Figs that make up the FigNode.
      */
     public abstract FigNode makePresentation(Layer lay);
 

@@ -51,7 +51,7 @@ import org.tigris.gef.presentation.Fig;
 
 @SuppressWarnings("serial")
 public abstract class MutableGraphSupport implements 
-    MutableGraphModel<NetNode, NetEdge, NetPort>, java.io.Serializable {
+    MutableGraphModel<NetNode, GraphEdge, NetPort>, java.io.Serializable {
 
     private Vector<GraphListener> _graphListeners;
 
@@ -202,7 +202,7 @@ public abstract class MutableGraphSupport implements
      * remove it, but just saying it must have worked without it, right?
      */
     @Override
-    public NetEdge connect(NetPort fromPort, NetPort toPort) {
+    public GraphEdge connect(NetPort fromPort, NetPort toPort) {
         // Intentionally Empty
         return null;
     }
@@ -212,7 +212,7 @@ public abstract class MutableGraphSupport implements
      * By default ignore edgeClass and call connect(port,port).
      */
     @Override
-    public NetEdge connect(NetPort fromPort, NetPort toPort, Object edgeClass) {
+    public GraphEdge connect(NetPort fromPort, NetPort toPort, Object edgeClass) {
         return connect(fromPort, toPort);
     }
 
@@ -238,7 +238,7 @@ public abstract class MutableGraphSupport implements
      *         we succeeded, <code>null</code> otherwise)
      */
     @Override
-    public NetEdge connect(NetPort fromPort, NetPort toPort, Object edgeType, Map<?, ?> attributes) {
+    public GraphEdge connect(NetPort fromPort, NetPort toPort, Object edgeType, Map<?, ?> attributes) {
         return connect(fromPort, toPort);
     }
 
@@ -252,12 +252,13 @@ public abstract class MutableGraphSupport implements
     }
 
     @Override
-    public boolean containsEdge(NetEdge edge) {
-        List<NetEdge> edges = getEdges();
+    public boolean containsEdge(GraphEdge edge) {
+        List<GraphEdge> edges = getEdges();
         return edges.contains(edge);
     }
 
     // Not defined in interface?
+    @SuppressWarnings("deprecation")
     public boolean containsNodePort(NetPort port) {
         List<NetNode> nodes = getNodes();
         if (nodes == null) {
@@ -273,6 +274,7 @@ public abstract class MutableGraphSupport implements
     }
 
     // Not defined in interface?
+    @SuppressWarnings("deprecation")
     public boolean containsEdgePort(NetPort port) {
         List<NetNode> edges = getNodes();
         if (edges == null) {
@@ -400,22 +402,27 @@ public abstract class MutableGraphSupport implements
         }
     }
 
+    /** Remove the given node from the graph. */
+    @Override
     public void removeNode(NetNode node) {
         fireNodeRemoved(node);
     }
 
     /** Add the given node to the graph, if valid. */
+    @Override
     public void addNode(NetNode node) {
         fireNodeAdded(node);
     }
 
     /** Add the given edge to the graph, if valid. */
-    public void addEdge(NetEdge edge) {
+    @Override
+    public void addEdge(GraphEdge edge) {
         fireEdgeAdded(edge);
     }
 
     /** Remove the given edge from the graph. */
-    public void removeEdge(NetEdge edge) {
+    @Override
+    public void removeEdge(GraphEdge edge) {
         fireEdgeRemoved(edge);
     }
 

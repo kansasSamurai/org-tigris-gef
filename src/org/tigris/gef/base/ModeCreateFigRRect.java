@@ -35,9 +35,10 @@ import org.tigris.gef.presentation.FigRRect;
 import org.tigris.gef.util.Localizer;
 
 /**
- * A Mode to interpert user input while creating a FigRRect. All of the actual
- * event handling is inherited from ModeCreate. This class just implements the
- * differences needed to make it specific to RRects.
+ * A Mode to interpret user input while creating a FigRRect. 
+ * <p>
+ * All of the actual event handling is inherited from ModeCreate. 
+ * This class just implements the differences needed to make it specific to RRects.
  */
 
 public class ModeCreateFigRRect extends ModeCreate {
@@ -49,10 +50,11 @@ public class ModeCreateFigRRect extends ModeCreate {
     }
 
     /**
-     * Create a new FigRect instance based on the given mouse down event and the
-     * state of the parent Editor.
+     * Create a new FigRect instance based on the given mouse down event 
+     * and the state of the parent Editor.
      */
     public Fig createNewItem(MouseEvent me, int snapX, int snapY) {
         return new FigRRect(snapX, snapY, 0, 0);
     }
+
 } /* end class ModeCreateFigRRect */

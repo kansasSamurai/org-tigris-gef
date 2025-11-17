@@ -33,14 +33,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
-/**
- * A class that implements the concept of a connected graph. A NetList is not
- * any one object in the connected graph, it is the overall graph. A NetList
- * contains a list of nodes and edges. This class is used by DefaulGraphModel,
- * if you implement your own GraphModel, you can use your own
- * application-specific representation of graphs.
- */
+import org.tigris.gef.graph.GraphEdge;
 
+/**
+ * A class that implements the concept of a connected graph. 
+ * <p>
+ * A NetList is not any one object in the connected graph, it is the overall graph. 
+ * A NetList contains a list of nodes and edges. 
+ * This class is used by DefaulGraphModel; if you implement your own GraphModel, 
+ * you can use your own application-specific representation of graphs.
+ */
 public class NetList extends NetPrimitive implements java.io.Serializable {
 
     // //////////////////////////////////////////////////////////////
@@ -50,7 +52,7 @@ public class NetList extends NetPrimitive implements java.io.Serializable {
     private ArrayList<NetNode> nodes = new ArrayList<>();
 
     /** The edges in the NetList */
-    private ArrayList<NetEdge> edges = new ArrayList<>();
+    private ArrayList<GraphEdge> edges = new ArrayList<>();
 
     /** The name of this connected graph. */
     String name;
@@ -87,7 +89,7 @@ public class NetList extends NetPrimitive implements java.io.Serializable {
     /**
      * Reply the vector of edges
      */
-    public List<NetEdge> getEdges() {
+    public List<GraphEdge> getEdges() {
         return edges;
     }
 
@@ -120,9 +122,9 @@ public class NetList extends NetPrimitive implements java.io.Serializable {
      * This is NOT part of an interface (currently).
      * Not sure if it should be.
      */
-    public Collection<NetEdge> getEdges(Collection<NetEdge> c) {
+    public Collection<GraphEdge> getEdges(Collection<GraphEdge> c) {
         if (c == null) {
-            return new Vector<NetEdge>(edges);
+            return new Vector<GraphEdge>(edges);
         } else {
             c.addAll(edges);
             return c;
@@ -144,13 +146,13 @@ public class NetList extends NetPrimitive implements java.io.Serializable {
         }
     }
 
-    /** Add a NetEdge to this NetList. */
-    public void addEdge(NetEdge a) {
+    /** Add a GraphEdge to this NetList. */
+    public void addEdge(GraphEdge a) {
         edges.add(a);
     }
 
     /** Remove a Edge from this NetList. */
-    public void removeEdge(NetEdge a) {
+    public void removeEdge(GraphEdge a) {
         if (a != null && edges.contains(a)) {
             edges.remove(a);
         }

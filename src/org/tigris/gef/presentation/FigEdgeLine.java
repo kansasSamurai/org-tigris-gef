@@ -30,6 +30,7 @@ package org.tigris.gef.presentation;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 
 /**
@@ -42,14 +43,15 @@ public class FigEdgeLine extends FigEdge {
     private static final long serialVersionUID = 7010064753682104591L;
 
     /**
-     * Instanciate a new FigLine as the contained Fig. By default it is black
-     * and the FigEdge has no ArrowHeads.
+     * Instantiate a new FigLine as the contained Fig. 
+     * By default it is black and the FigEdge has no ArrowHeads.
      */
     protected Fig makeEdgeFig() {
         return new FigLine(0, 0, 0, 0, Color.black);
     }
 
     /** Compute the shape of the line that presents an Edge. */
+    @SuppressWarnings("deprecation")
     public void computeRouteImpl() {
         Fig sourcePortFig = getSourcePortFig();
         Fig destPortFig = getDestPortFig();
@@ -68,12 +70,15 @@ public class FigEdgeLine extends FigEdge {
         calcBounds();
     }
 
-    public void paint(Graphics graphicContext) {
-        super.paint(graphicContext);
-        Graphics g = (Graphics) graphicContext;
+    @SuppressWarnings("deprecation")
+    public void paint(Graphics g) {
+        Graphics2D g2 = g2Create(g);
+        super.paint(g2);
+
         if (_highlight) {
             FigLine f = (FigLine) getFig();
-            paintHighlightLine(g, f.getX1(), f.getY1(), f.getX2(), f.getY2());
+            paintHighlightLine(g2, f.getX1(), f.getY1(), f.getX2(), f.getY2());
         }
     }
+
 } /* end class FigEdgeLine */

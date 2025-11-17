@@ -31,6 +31,10 @@ package org.tigris.gef.base;
 import java.awt.*;
 import java.io.*;
 
+import org.tigris.gef.graph.GraphEdge;
+import org.tigris.gef.graph.GraphModel;
+import org.tigris.gef.graph.presentation.NetNode;
+import org.tigris.gef.graph.presentation.NetPort;
 import org.tigris.gef.ocl.ExpansionException;
 import org.tigris.gef.ocl.OCLExpander;
 import org.tigris.gef.ocl.TemplateReader;
@@ -90,7 +94,8 @@ public class CmdSavePGML extends Cmd implements FilenameFilter {
                     "/org/tigris/gef/xml/dtd/PGML.tee"));
 
             Editor ce = Globals.curEditor();
-            Diagram d = new Diagram("junk", ce.getGraphModel(),
+            Diagram d = new Diagram("junk", 
+                    (GraphModel<NetNode, GraphEdge, NetPort>) ce.getGraphModel(),
                     (LayerPerspective) ce.getLayerManager().getActiveLayer());
             FileDialog fd = new FileDialog(ce.findFrame(),
                     "Save Diagram in PGML format", FileDialog.SAVE);

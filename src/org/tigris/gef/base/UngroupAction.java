@@ -106,6 +106,7 @@ public class UngroupAction extends UndoableAction {
 
     public void actionPerformed(ActionEvent e) {
         super.actionPerformed(e);
+
         Vector ungroupedItems = new Vector();
         Editor currentEditor = Globals.curEditor();
         Vector selectedFigs = currentEditor.getSelectionManager().getFigs();

@@ -241,15 +241,17 @@ public class SelectionManager implements Serializable, KeyListener,
      * @param items
      */
     @Deprecated
-    public void select(Collection items) {
-        if (UndoManager.getInstance().isGenerateMementos()) {
-            UndoManager.getInstance().addMemento(new SelectionMemento());
-        }
-        allDamaged();
-        removeAllElements();
-        addAllFigs(items);
-        allDamaged();
-        fireSelectionChanged();
+    @SuppressWarnings("unchecked")
+    public void select(Collection<?> items) {
+        this.selectFigs((Collection<? extends DiagramElement>) items);
+//        if (UndoManager.getInstance().isGenerateMementos()) {
+//            UndoManager.getInstance().addMemento(new SelectionMemento());
+//        }
+//        allDamaged();
+//        removeAllElements();
+//        addAllFigs(items);
+//        allDamaged();
+//        fireSelectionChanged();
     }
 
     public void selectFigs(Collection<? extends DiagramElement> items) {

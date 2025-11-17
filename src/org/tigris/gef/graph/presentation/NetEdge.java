@@ -28,23 +28,29 @@
 
 package org.tigris.gef.graph.presentation;
 
-import java.util.*;
+import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.tigris.gef.base.*;
-import org.tigris.gef.presentation.*;
-import org.tigris.gef.graph.*;
+import org.tigris.gef.base.Globals;
+import org.tigris.gef.base.Layer;
+import org.tigris.gef.graph.GraphEdge;
+import org.tigris.gef.graph.GraphEdgeHooks;
+import org.tigris.gef.presentation.Fig;
+import org.tigris.gef.presentation.FigEdge;
+import org.tigris.gef.presentation.FigNode;
 
 /**
- * This class models an edge in our underlying connected graph model. This class
- * is used by the DefaultGraphModel. If you define your own GraphModel, you can
- * user your own application-specific objects as edges.
+ * This class models an edge in our underlying connected graph model. 
+ * <p>
+ * This class is used by the DefaultGraphModel. 
+ * If you define your own GraphModel, you can
+ * use your own application-specific objects as edges.
  */
 
 @SuppressWarnings("serial")
 public abstract class NetEdge extends NetPrimitive 
-    implements GraphEdgeHooks, java.io.Serializable {
+    implements GraphEdge, GraphEdgeHooks, java.io.Serializable {
 
     private static final Log LOG = LogFactory.getLog(NetEdge.class);
 
@@ -83,8 +89,18 @@ public abstract class NetEdge extends NetPrimitive
         return _sourcePort;
     }
 
+    @Override
+    public NetPort getSource() {
+        return _sourcePort;
+    }
+
     public void setDestPort(NetPort d) {
         _destPort = d;
+    }
+
+    @Override
+    public NetPort getDest() {
+        return _destPort;
     }
 
     public NetPort getDestPort() {
@@ -116,28 +132,31 @@ public abstract class NetEdge extends NetPrimitive
     // net-level hooks
 
     /**
-     * Connect the source and destination ports, iff they agree to being
+     * Connect the source and destination ports, if they agree to being
      * connected (i.e., canConnectTo() returns true). Reply true on success.
-     * This method is noramlly called after a new edge instance is made. Maybe
-     * this behavior should be in a constructor, but I want to use
+     * <p>
+     * This method is normally called after a new edge instance is made. 
+     * Maybe this behavior should be in a constructor, but I want to use
      * Class#newInstance so constructors do not get any arguments.
      */
-    public boolean connect(@SuppressWarnings("rawtypes") GraphModel gm, Object srcPort, Object destPort) {
-        NetPort srcNetPort = (NetPort) srcPort;
-        NetPort destNetPort = (NetPort) destPort;
-        if (!srcNetPort.canConnectTo(gm, destPort))
+    @Override
+    public boolean connect(DefaultGraphModel gm, NetPort srcPort, NetPort destPort) {
+//        NetPort srcNetPort = srcPort;
+//        NetPort destNetPort = destPort;
+        if (!srcPort.canConnectTo(gm, destPort))
             return false;
-        if (!destNetPort.canConnectTo(gm, srcPort))
+        if (!destPort.canConnectTo(gm, srcPort))
             return false;
 
-        setSourcePort(srcNetPort);
-        setDestPort(destNetPort);
+        setSourcePort(srcPort);
+        setDestPort(destPort);
 
-        srcNetPort.addEdge(this);
-        destNetPort.addEdge(this);
+        srcPort.addEdge(this);
+        destPort.addEdge(this);
 
-        srcNetPort.postConnect(gm, destPort);
-        destNetPort.postConnect(gm, srcPort);
+        srcPort.postConnect(gm, destPort);
+        destPort.postConnect(gm, srcPort);
+
         return true;
     }
 

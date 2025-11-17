@@ -37,8 +37,8 @@ import org.tigris.gef.graph.*;
 import org.tigris.gef.util.*;
 
 /**
- * A window that displays a toolbar, a connected graph editing pane, and a
- * status bar.
+ * A window that includes a menu, a toolbar, a connected graph editing pane, 
+ * and a status bar.
  */
 public class JGraphFrame extends JFrame 
     implements IStatusBar, Cloneable, ModeChangeListener {
@@ -88,7 +88,7 @@ public class JGraphFrame extends JFrame
     /**
      * Contruct a new JGraphFrame with the title "untitled" and the given GraphModel.
      */
-    public JGraphFrame(GraphModel gm) {
+    public JGraphFrame(GraphModel<NetNode, GraphEdge, NetPort> gm) {
         this("untitled");
 
         setGraphModel(gm);
@@ -149,7 +149,7 @@ public class JGraphFrame extends JFrame
         return _graph.getEditor().getGraphEdgeRenderer();
     }
 
-    public GraphModel getGraphModel() {
+    public GraphModel<?, ?, ?> getGraphModel() {
         return _graph.getGraphModel();
     }
 
@@ -181,7 +181,7 @@ public class JGraphFrame extends JFrame
         _graph.getEditor().setGraphEdgeRenderer(rend);
     }
 
-    public void setGraphModel(GraphModel gm) {
+    public void setGraphModel(GraphModel<NetNode, GraphEdge, NetPort> gm) {
         _graph.setGraphModel(gm);
     }
 
@@ -322,7 +322,8 @@ public class JGraphFrame extends JFrame
         KeyStroke altF4 = KeyStroke.getKeyStroke(KeyEvent.VK_F4,
                 KeyEvent.ALT_MASK);
 
-        KeyStroke delKey = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);
+        KeyStroke delKey = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 
+                0);
         KeyStroke ctrlZ = KeyStroke.getKeyStroke(KeyEvent.VK_Z,
                 KeyEvent.CTRL_MASK);
         KeyStroke ctrlY = KeyStroke.getKeyStroke(KeyEvent.VK_Y,

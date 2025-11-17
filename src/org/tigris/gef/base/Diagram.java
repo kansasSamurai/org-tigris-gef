@@ -39,10 +39,13 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.tigris.gef.graph.GraphController;
+import org.tigris.gef.graph.GraphEdge;
 import org.tigris.gef.graph.GraphEvent;
 import org.tigris.gef.graph.GraphListener;
 import org.tigris.gef.graph.GraphModel;
 import org.tigris.gef.graph.presentation.DefaultGraphModel;
+import org.tigris.gef.graph.presentation.NetNode;
+import org.tigris.gef.graph.presentation.NetPort;
 import org.tigris.gef.presentation.Fig;
 import org.tigris.gef.presentation.FigEdge;
 import org.tigris.gef.presentation.FigNode;
@@ -50,8 +53,9 @@ import org.tigris.gef.ui.PaletteFig;
 import org.tigris.gef.ui.ToolBar;
 
 /**
- * A diagram is just combination of a GraphModel, a Layer, and a title. The
- * GraphModel stores the connected graph representation, without any graphics.
+ * A diagram is just combination of a GraphModel, a Layer, and a title. 
+ * <p>
+ * The GraphModel stores the graph representation, without any graphics.
  * The Layer stores all the Figs.
  */
 public class Diagram implements Serializable, GraphListener {
@@ -107,12 +111,22 @@ public class Diagram implements Serializable, GraphListener {
         this(name, new DefaultGraphModel());
     }
 
-    public Diagram(String name, GraphModel<?,?,?> graphModel) {
+    public Diagram(String name, GraphModel<NetNode, GraphEdge, NetPort> graphModel) {
         this(name, graphModel, new LayerPerspective(name, graphModel));
+
         getLayer().setDiagram(this);
     }
 
-    public Diagram(String name, GraphModel<?,?,?> graphModel, LayerPerspective layer) {
+    /**
+     * Create a new Diagram.
+     * <p>
+     * All constructors lead here ...
+     * 
+     * @param name
+     * @param graphModel
+     * @param layer
+     */
+    public Diagram(String name, GraphModel<NetNode, GraphEdge, NetPort> graphModel, LayerPerspective layer) {
         changeSupport = new PropertyChangeSupport(this);
         _name = name;
         this.layer = layer;
@@ -200,18 +214,18 @@ public class Diagram implements Serializable, GraphListener {
         return getClass().getName();
     }
 
-    public GraphModel<?,?,?> getGraphModel() {
+    public GraphModel<NetNode, GraphEdge, NetPort> getGraphModel() {
         return getLayer().getGraphModel();
     }
 
-    public void setGraphModel(GraphModel<?,?,?> gm) {
+    public void setGraphModel(GraphModel<NetNode, GraphEdge, NetPort> gm) {
 
-        GraphModel<?,?,?> oldGM = getLayer().getGraphModel();
+        GraphModel<NetNode, GraphEdge, NetPort> oldGM = getLayer().getGraphModel();
 
         if (oldGM != null)
             oldGM.removeGraphEventListener(this);
 
-        getLayer().setGraphModel(gm);
+        getLayer().setGraphModel((GraphModel<NetNode, GraphEdge, NetPort>) gm);
         gm.addGraphEventListener(this);
     }
 
@@ -237,7 +251,7 @@ public class Diagram implements Serializable, GraphListener {
         int count = 0;
         int numOwners = owners.size();
 
-        Iterator<Object> nodeIter = getNodes().iterator();
+        Iterator<NetNode> nodeIter = getNodes().iterator();
         while (nodeIter.hasNext()) {
             Object node = nodeIter.next();
 
@@ -249,7 +263,7 @@ public class Diagram implements Serializable, GraphListener {
             }
         }
 
-        Iterator<Object> edgeIter = getEdges().iterator();
+        Iterator<GraphEdge> edgeIter = getEdges().iterator();
         while (edgeIter.hasNext()) {
             Object edge = edgeIter.next();
 
@@ -281,15 +295,15 @@ public class Diagram implements Serializable, GraphListener {
      * 
      * @return the nodes
      */
-    public List<Object> getNodes() {
+    public List<NetNode> getNodes() {
         // needs-more-work: should just do getGraphModel().getNodes()
         // but that is not updated when the diagram is loaded
-        List<Object> nodes = new ArrayList<>();
+        List<NetNode> nodes = new ArrayList<>();
 
         List<? extends Fig> figs = getLayer().getContents();
         for (Fig fig : figs) {
             if (fig instanceof FigNode) {
-                nodes.add(fig.getOwner());
+                nodes.add((NetNode) fig.getOwner());
             }
         }
 
@@ -301,15 +315,15 @@ public class Diagram implements Serializable, GraphListener {
      * 
      * @return the edges
      */
-    public List<Object> getEdges() {
+    public List<GraphEdge> getEdges() {
         // needs-more-work: should just do getGraphModel().getEdges()
         // but that is not updated when the diagram is loaded
-        List<Object> edges = new ArrayList<>();
+        List<GraphEdge> edges = new ArrayList<>();
 
         final List<? extends Fig> figs = getLayer().getContents();
         for (final Fig fig : figs) {
             if (fig instanceof FigEdge && fig.getOwner() != null) {
-                edges.add(fig.getOwner());
+                edges.add((GraphEdge) fig.getOwner());
             }
         }
 

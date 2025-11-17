@@ -39,21 +39,23 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * This class implements a kind of Layer that contains other Layers. Layer's can
- * be nested in an is-part-of tree. That tree can be walked to paint the
- * contents of the view, find what the user clicked on, find a layer by name,
- * save the contents to a file, etc.
+ * This class implements a kind of Layer that contains other Layers. 
+ * <p>
+ * Layer objects can be nested in an is-part-of tree. That tree can be walked 
+ * to paint the contents of the view, find what the user clicked on, 
+ * find a layer by name, save the contents to a file, etc.
+ * <p>
+ * Since 0.14 :<ul>
+ * <li>Manages the 'active' state of the activated/in-activated layer.</li>
+ *  </ul>
  */
-
 public class LayerManager implements java.io.Serializable {
-
-    private static final long serialVersionUID = -4133017459593099807L;
 
     /** The Layer's contained within this LayerManager. */
     private List<Layer> _layers = new ArrayList<Layer>();
 
     /**
-     * In most editors one Layer is the active layer and all mouse clicks go to
+     * In most editors, one Layer is the active layer and all mouse clicks go to
      * the contents of that layer. For now I assume this, but I would like to
      * avoid this assumption in the future.
      */
@@ -74,6 +76,8 @@ public class LayerManager implements java.io.Serializable {
      */
     @Deprecated
     public Editor _editor = null;
+
+    private static final long serialVersionUID = -4133017459593099807L;
 
     // //////////////////////////////////////////////////////////////
     // constructors and related methods
@@ -104,6 +108,8 @@ public class LayerManager implements java.io.Serializable {
 
     public void removeAllLayers() {
         _layers.clear();
+        if (_activeLayer != null)
+            _activeLayer.setActive(false);
         _activeLayer = null;
     }
 
@@ -151,19 +157,24 @@ public class LayerManager implements java.io.Serializable {
     }
 
     /** Make one of my layers the active one. */
-    public void setActiveLayer(Layer lay) {
+    public void setActiveLayer(Layer layer) {
         if (_activeLayer != null && _activeLayer.isAlwaysOnTop())
             return;
 
-        if (_layers.contains(lay))
-            _activeLayer = lay;
-        else
+        if (_layers.contains(layer)) {
+            if (_activeLayer != null)
+                _activeLayer.setActive(false);
+
+            _activeLayer = layer;
+            _activeLayer.setActive(true);
+        } else
             System.out.println("That layer is not one of my layers");
     }
 
     /**
-     * Reply which layer is the active one. In case LayerManager's are nested,
-     * this works recursively.
+     * Return the active layer.
+     * <p> 
+     * In case LayerManager's are nested, this works recursively.
      */
     public Layer getActiveLayer() {
         return _activeLayer;
@@ -171,8 +182,9 @@ public class LayerManager implements java.io.Serializable {
 
     /**
      * When an editor or some tool wants to look at all the Figs that are
-     * contained in this layer, reply the contents of my active layer. Maybe
-     * this should really reply _all_ the contents of all layers.
+     * contained in this layer, return the contents of my active layer. 
+     * <p>
+     * Maybe this should really reply _all_ the contents of all layers.
      */
     public List<Fig> getContents() {
         if (_activeLayer == null) {
@@ -184,12 +196,13 @@ public class LayerManager implements java.io.Serializable {
 
     /**
      * When an editor or some tool wants to look at all the Figs that are
-     * contained in this layer, reply the contents of my active layer. Maybe
-     * this should really reply _all_ the contents of all layers.
+     * contained in this layer, return the contents of my active layer. 
+     * <p>
+     * Maybe this should really reply _all_ the contents of all layers.
      * @deprecated use getContents with no args
      */
     @Deprecated
-    public List getContents(List oldList) {
+    public List<?> getContents(List<?> oldList) {
         return (_activeLayer == null) ? null : _activeLayer.getContents();
     }
 
@@ -209,9 +222,9 @@ public class LayerManager implements java.io.Serializable {
         if (!_paintLayers)
             return;
 
-        if (_paintActiveOnly)
+        if (_paintActiveOnly) {
             _activeLayer.paint(g, painter);
-        else {
+        } else {
             Layer currentActiveLayer = _activeLayer;
             boolean alwaysOnTopState = currentActiveLayer.isAlwaysOnTop();
             currentActiveLayer.setAlwaysOnTop(false);
@@ -230,8 +243,8 @@ public class LayerManager implements java.io.Serializable {
     // Layer API
 
     /**
-     * When the user tries to add a new Fig to a LayerManager, pass that
-     * addition along to my active layer.
+     * When the user tries to add a new Fig to a LayerManager, 
+     * pass that addition along to the active layer.
      */
     public void add(Fig f) {
         if (_activeLayer != null) {
@@ -240,8 +253,8 @@ public class LayerManager implements java.io.Serializable {
     }
 
     /**
-     * When the user tries to remove a new Fig from a LayerManager, pass that
-     * removal along to my active layer.
+     * When the user tries to remove a new Fig from a LayerManager, 
+     * pass that removal along to my active layer.
      */
     public void remove(Fig f) {
         if (_activeLayer != null)
@@ -259,7 +272,7 @@ public class LayerManager implements java.io.Serializable {
      * @deprecated in 0.13 use getFigs()
      */
     @Deprecated
-    public Enumeration elements() {
+    public Enumeration<?> elements() {
         return (_activeLayer == null) ? null : _activeLayer.elements();
     }
 
@@ -375,4 +388,5 @@ public class LayerManager implements java.io.Serializable {
             layer.setScale(scale);
         }
     }
+
 }

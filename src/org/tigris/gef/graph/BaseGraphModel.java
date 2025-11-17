@@ -48,7 +48,14 @@ package org.tigris.gef.graph;
 
 public interface BaseGraphModel<N, E, P> extends java.io.Serializable {
 
-    /** Return the node or edge that owns the given port */
+    /** 
+     * Return the node (or edge?) that owns the given port 
+     * <p>
+     * NOTE: 0.14 - It may turn out to be wrong but I don't feel like an Edge
+     * can be the owner of a port; hence I've modeled it that way.
+     * If it turns out that I'm wrong, the plan would probably be to
+     * create an edge specific method like getEdgeOwner(P).
+     */
     N getOwner(P port);
 
     /** Return one end of an edge */

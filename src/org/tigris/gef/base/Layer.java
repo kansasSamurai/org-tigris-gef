@@ -35,14 +35,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import org.tigris.gef.di.GraphEdge;
-import org.tigris.gef.di.GraphElement;
-import org.tigris.gef.di.GraphNode;
 import org.tigris.gef.di.DiagramElement;
+import org.tigris.gef.di.GraphEdge;
+import org.tigris.gef.di.GraphNode;
 import org.tigris.gef.presentation.Fig;
 import org.tigris.gef.presentation.FigEdge;
 import org.tigris.gef.presentation.FigPainter;
@@ -52,15 +50,24 @@ import org.tigris.gef.util.PredFigInRect;
 import org.tigris.gef.util.PredFigNodeInRect;
 
 /**
- * A Layer is like a drawing layer in high-end drawing applications (e.g.,
- * MacDraw Pro). A Layer is like a sheet of clear plastic that can contain part
- * of the picture being drawn and multiple layers are put on top of each other
- * to make the overall picture. Different layers can be hidden, locked, or
- * grayed out independently. In GEF the Layer class is more abstract than
- * described above. LayerDiagram is a subclass of Layer that does what is
- * described above. Other subclasses of Layer can provide functionality. For
- * example the background drawing grid is a subclass of Layer that computes its
+ * A Layer is like a drawing layer in high-end drawing applications (e.g., MacDraw Pro). 
+ * <p>
+ * A Layer is like a sheet of clear plastic that can contain part
+ * of the picture being drawn; multiple layers are put on top of each other
+ * to make the overall picture. A layer can be:<ul>
+ * <li>active (since 0.14)</li>
+ * <li>hidden</li>
+ * <li>locked</li>
+ * <li>grayed out</li>
+ * </ul>
+ * <p>
+ * In GEF the Layer class is more abstract than described above. 
+ * LayerDiagram is a subclass of Layer that does what is described above. 
+ * Other subclasses of Layer can provide functionality. 
+ * <p>
+ * For example the background drawing grid is a subclass of Layer that computes its
  * display rather than displaying what is stored in a data structure.
+ * <p>
  * Generalizing the concept of a layer to handle grids and other computed
  * display features gives more power and allows the framework to be extended in
  * building various applications. For example an application that needs polar
@@ -68,7 +75,6 @@ import org.tigris.gef.util.PredFigNodeInRect;
  * might implement LayerMap. But since layers can be composed, the user could
  * put a grid in front of or behind the map.
  * <p>
- * 
  * This approach to implementing drawing editors is similar to that described in
  * a published paper: "Using the Multi-Layer Model for Building Interactive
  * Graphical Applications" Fekete, et al. UIST'96. pp. 109-117. GEF might be
@@ -93,44 +99,42 @@ public abstract class Layer implements java.io.Serializable {
     /** The type of FigNodes that should appear in this layer. */
     private String type = "aLayer";
 
-    /**
-     * Does the user not want to see this Layer right now? Needs-More-Work.
-     */
+    /** Is this layer being used to add new elements? 0.14 */
+    private boolean active = false;
+
+    /** Does the user not want to see this Layer right now? Needs-More-Work. */
     private boolean hidden = false;
 
-    /**
-     * Is this Layer demphasized by making everything in it gray?
-     * Needs-More-Work.
-     */
+    /** Is this Layer deemphasized by making everything in it gray? Needs-More-Work. */
     private boolean grayed = false;
 
-    /**
-     * Is this Layer locked so that the user can not modify it? Needs-More-Work.
-     */
+    /** Is this Layer locked so that the user can not modify it? Needs-More-Work. */
     private boolean locked = false;
 
-    /**
-     * Should this layer always stay on top (i.e. always be the active layer)?
-     */
+    /** Should this layer always stay on top (i.e. always be the active layer)? */
     private boolean alwaysOnTop = false;
-    /**
-     * The current zooming scale this layer is displayed in
-     */
+
+    /** The current zooming scale this layer is displayed in */
     private double scale = 1;
 
     /**
      * Should the user be able to hide, lock, or gray this layer?
      * Needs-More-Work.
+     * 
      * @deprecated use getOnMenu
      */
     @Deprecated
     protected boolean _onMenu = false;
 
     /**
-     * A list of the Editors that are displaying this Layer. Use addEditor(),
-     * removeEditor() and getEditors() to access this.
+     * A list of the Editors that are displaying this Layer. 
+     * <p>
+     * Use addEditor(), removeEditor() and getEditors() to access this.
+     * 0.14 this does not seem like a right design to me; needs more research
      */
     private transient List<Editor> editors = new ArrayList<Editor>();
+
+    private static final long serialVersionUID = 1L;
 
     // //////////////////////////////////////////////////////////////
     // constructors
@@ -197,6 +201,18 @@ public abstract class Layer implements java.io.Serializable {
 
     public void setName(String n) {
         name = n;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public boolean isNotActive() {
+        return ! isActive();
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public void setHidden(boolean b) {
@@ -302,6 +318,7 @@ public abstract class Layer implements java.io.Serializable {
      * 
      * @deprecated use PgmlUtility.getContentsNoEdges
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public List getContentsNoEdges() {
         List contents = getContents();
         int size = contents.size();
@@ -320,6 +337,7 @@ public abstract class Layer implements java.io.Serializable {
      * 
      * @deprecated use PgmlUtility.getContentsEdgesOnly
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public List getContentsEdgesOnly() {
         List contents = getContents();
         int size = contents.size();
@@ -364,6 +382,7 @@ public abstract class Layer implements java.io.Serializable {
     /**
      * @deprecated in 0.13 use getContents and build your own iterator
      */
+    @SuppressWarnings("rawtypes")
     public Enumeration elements() {
         return EnumerationEmpty.theInstance();
     }
@@ -376,6 +395,7 @@ public abstract class Layer implements java.io.Serializable {
      * Reply an enumeration of all the Figs in this Layer that intersect given
      * Rectangle.
      */
+    @SuppressWarnings("rawtypes")
     public Enumeration elementsIn(Rectangle r) {
         return new EnumerationPredicate(elements(), new PredFigInRect(r));
     }
@@ -384,16 +404,17 @@ public abstract class Layer implements java.io.Serializable {
      * Reply an enumeration of all the FigNodes in this Layer that intersect
      * given Rectangle.
      */
+    @SuppressWarnings("rawtypes")
     public Enumeration nodesIn(Rectangle r) {
         return new EnumerationPredicate(elements(), new PredFigNodeInRect(r));
     }
 
     /**
      * Given an object from the net-level model (e.g., NetNode or NetPort),
-     * reply the graphical depiction of that object in this layer, if there is
+     * return the graphical depiction of that object in this layer, if there is
      * one. Otherwise reply null.
      */
-    public abstract Fig presentationFor(Object obj);
+    public abstract Fig presentationFor(Object nodeOrPort);
 
     /**
      * Return a string that can be used to make some Layers show nodes in one
@@ -491,6 +512,7 @@ public abstract class Layer implements java.io.Serializable {
     }
 
     public Rectangle calcDrawingArea() {
+        @SuppressWarnings("rawtypes")
         Enumeration iter = elements();
         if (!iter.hasMoreElements())
             return new Rectangle();
@@ -556,7 +578,7 @@ public abstract class Layer implements java.io.Serializable {
     /** Add an Editor to the list of Editors showing this Layer. */
     public void addEditor(Editor ed) {
         if (editors == null) {
-            editors = new ArrayList();
+            editors = new ArrayList<Editor>();
         }
         editors.add(ed);
     }
@@ -599,6 +621,7 @@ public abstract class Layer implements java.io.Serializable {
      * @param map
      *                a hashmap with properties
      */
+    @SuppressWarnings("rawtypes")
     public void adjust(HashMap map) {
     }
 

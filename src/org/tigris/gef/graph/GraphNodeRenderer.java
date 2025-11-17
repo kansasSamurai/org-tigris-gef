@@ -34,8 +34,9 @@ import org.tigris.gef.base.Layer;
 import org.tigris.gef.presentation.FigNode;
 
 /**
- * An interface for FigNode factories. Similiar in concept to the Swing class
- * TreeCellRenderer.
+ * An interface for FigNode factories. 
+ * <p>
+ * Similar in concept to the Swing class TreeCellRenderer.
  */
 
 @SuppressWarnings("rawtypes")

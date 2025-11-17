@@ -45,8 +45,8 @@ import org.tigris.gef.graph.GraphPortHooks;
  * your own application-specific objects as ports.
  */
 
-public class NetPort extends NetPrimitive implements GraphPortHooks,
-        java.io.Serializable {
+public class NetPort extends NetPrimitive 
+    implements GraphPortHooks, java.io.Serializable {
 
     private static final long serialVersionUID = -3506978147166333303L;
 
@@ -57,7 +57,7 @@ public class NetPort extends NetPrimitive implements GraphPortHooks,
     // instance variables
 
     /** The NetEdges that are connected to this port. */
-    private Vector<NetEdge> edges;
+    private Vector<NetEdge> _edges;
 
     /** The NetNode that contains this port. */
     private NetNode _parent;
@@ -70,7 +70,7 @@ public class NetPort extends NetPrimitive implements GraphPortHooks,
     /** Construct a new NetPort with the given parent node and no arcs. */
     public NetPort(NetNode parent) {
         _parent = parent;
-        edges = new Vector<NetEdge>();
+        _edges = new Vector<NetEdge>();
     }
 
     // //////////////////////////////////////////////////////////////
@@ -80,7 +80,7 @@ public class NetPort extends NetPrimitive implements GraphPortHooks,
         return toString();
     }
 
-    /** Reply the NetNode that owns this port. */
+    /** Return the NetNode that owns this port. */
     public NetNode getParentNode() {
         return (NetNode) _parent;
     }
@@ -95,19 +95,20 @@ public class NetPort extends NetPrimitive implements GraphPortHooks,
 
     /** Reply a vector of NetEdges that are connected here. */
     public Vector<NetEdge> getEdges() {
-        return edges;
+        return _edges;
     }
 
     // //////////////////////////////////////////////////////////////
     // net-level operations
 
     /**
-     * Add an edge to the list of edge connected to this port. Called when the
-     * user defines a new edge. Normally, you would not call this directly, you
-     * would call NetEdge#connect().
+     * Add an edge to the list of edge connected to this port. 
+     * <p>
+     * Called when the user defines a new edge. 
+     * Normally, you would not call this directly, you would call NetEdge#connect().
      */
     public void addEdge(NetEdge edge) {
-        edges.addElement(edge);
+        _edges.addElement(edge);
     }
 
     /**
@@ -116,7 +117,7 @@ public class NetPort extends NetPrimitive implements GraphPortHooks,
      * you would call NetEdge#deleteFromModel().
      */
     public void removeEdge(NetEdge edge) {
-        edges.removeElement(edge);
+        _edges.removeElement(edge);
     }
 
     /**
@@ -125,13 +126,13 @@ public class NetPort extends NetPrimitive implements GraphPortHooks,
      */
     public void deleteFromModel() {
         LOG.debug("Deleting from model");
-        int size = edges.size();
+        int size = _edges.size();
         for (int i = 0; i < size; i++) {
             // We always just dispose the first edge as each dispose
             // results in a call-back to removing that same edge from the
             // edges list making what was the next item the new first
             // item.
-            NetEdge edge = (NetEdge) edges.get(0);
+            NetEdge edge = (NetEdge) _edges.get(0);
             edge.deleteFromModel();
         }
         firePropertyChange("disposed", false, true);
@@ -142,20 +143,24 @@ public class NetPort extends NetPrimitive implements GraphPortHooks,
 
     /**
      * Application specific hook that is called after a successful connection.
+     * <p>
+     * 0.14 - I believe it is assumed this will be called by subclasses
+     * even if they override this method.
      */
-    public void postConnect(GraphModel gm, Object otherPort) {
+    public void postConnect(GraphModel<?, ?, ?> gm, Object otherPort) {
         NetPort otherNetPort = (NetPort) otherPort;
         NetNode parent = getParentNode();
-        parent
-                .postConnect(gm, otherNetPort.getParentNode(), this,
-                        otherNetPort);
+        parent.postConnect(gm, otherNetPort.getParentNode(), this, otherNetPort);
     }
 
     /**
-     * Application specific hook that is called after a disconnection. (for now,
-     * all disconnections are assumed legal).
+     * Application specific hook that is called after a disconnection. 
+     * <p>
+     * (for now, all disconnections are assumed legal).
+     * 0.14 - I believe it is assumed this will be called by subclasses
+     * even if they override this method.
      */
-    public void postDisconnect(GraphModel gm, Object otherPort) {
+    public void postDisconnect(GraphModel<?, ?, ?> gm, Object otherPort) {
         NetPort otherNetPort = (NetPort) otherPort;
         NetNode parent = getParentNode();
         parent.postDisconnect(gm, otherNetPort.getParentNode(), this,
@@ -176,7 +181,7 @@ public class NetPort extends NetPrimitive implements GraphPortHooks,
 
     /** reply a new NetEdge from this port to the given NetPort. */
     public NetEdge makeEdgeFor(NetPort otherPort) {
-        Class edgeClass = defaultEdgeClass(otherPort);
+        Class<?> edgeClass = defaultEdgeClass(otherPort);
         if (edgeClass == null) {
             LOG.error("defaultEdgeClass is null");
             return null;
@@ -209,7 +214,7 @@ public class NetPort extends NetPrimitive implements GraphPortHooks,
      * super.canConnectTo() would return false (i.e., deeper subclasses get more
      * constrained). I don't know if that is a good convention.
      */
-    public boolean canConnectTo(GraphModel gm, Object anotherPort) {
+    public boolean canConnectTo(GraphModel<?, ?, ?> gm, Object anotherPort) {
         NetNode myNode = getParentNode();
         NetNode otherNode = ((NetPort) anotherPort).getParentNode();
         return myNode.canConnectTo(gm, otherNode, anotherPort, this);

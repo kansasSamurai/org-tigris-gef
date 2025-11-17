@@ -35,8 +35,7 @@ import javax.swing.ImageIcon;
  * Cmd that sets the next global editor mode. 
  * <p>
  * The global editor mode effects the next editor that you move the mouse into. 
- * For example, in PaletteFig the Line button sets 
- * the next global mode to ModeCreateFigLine.
+ * For example, in PaletteFig the Line button sets the next global mode to ModeCreateFigLine.
  * 
  * @deprecated in 0.12.3 use SetModeAction
  */
@@ -55,17 +54,21 @@ public class CmdSetMode extends Cmd {
     /** Set the next global mode to the named mode. */
     public CmdSetMode(Class<?> modeClass) {
         super("SetEditorMode");
+
         setArg("desiredModeClass", modeClass);
     }
 
+    /** what is this constructor for? */
     public CmdSetMode(Class<?> modeClass, String name) {
         super(name);
+
         setArg("desiredModeClass", modeClass);
     }
 
     /** Set the next global mode to the named mode, and maybe make it sticky. */
     public CmdSetMode(Class<?> modeClass, boolean sticky) {
         super("SetEditorMode");
+
         setArg("desiredModeClass", modeClass);
         setArg("shouldBeSticky", sticky ? Boolean.TRUE : Boolean.FALSE);
     }
@@ -73,12 +76,14 @@ public class CmdSetMode extends Cmd {
     /** Set the next global mode to the named mode, and set all arguments. */
     public CmdSetMode(Class<?> modeClass, Hashtable<String, Object> modeArgs) {
         super("SetEditorMode");
+
         setArg("desiredModeClass", modeClass);
         _modeArgs = modeArgs;
     }
 
     public CmdSetMode(Class<?> modeClass, String arg, Object value) {
         super("SetEditorMode");
+
         _modeArgs = new Hashtable<String, Object>(1);
         _modeArgs.put(arg, value);
         setArg("desiredModeClass", modeClass);
@@ -86,6 +91,7 @@ public class CmdSetMode extends Cmd {
 
     public CmdSetMode(Class<?> modeClass, String arg, Object value, String name) {
         super(name);
+
         _modeArgs = new Hashtable<String, Object>(1);
         _modeArgs.put(arg, value);
         setArg("desiredModeClass", modeClass);
@@ -93,6 +99,7 @@ public class CmdSetMode extends Cmd {
 
     public CmdSetMode(Class<?> modeClass, String arg, Object value, String name, ImageIcon icon) {
         super(null, name, icon);
+
         _modeArgs = new Hashtable<String, Object>(1);
         _modeArgs.put(arg, value);
         setArg("desiredModeClass", modeClass);
@@ -120,4 +127,5 @@ public class CmdSetMode extends Cmd {
     public void undoIt() {
         System.out.println("undo does not make sense for setting modes");
     }
+
 } /* end class CmdSetMode */

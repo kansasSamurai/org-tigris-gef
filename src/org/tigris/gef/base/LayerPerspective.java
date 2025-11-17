@@ -39,11 +39,14 @@ import org.tigris.gef.graph.*;
 import org.tigris.gef.graph.presentation.*;
 
 /**
- * A Layer like found in many drawing applications. It contains a collection of
- * Figs, ordered from back to front. Each LayerPerspective contains part of the
- * overall picture that the user is drawing. LayerPerspective is different from
- * LayerDiagram in that it assumes that you are drawing a connected graph that
- * is represented in a GraphModel and controlled by a GraphController.
+ * A Layer like found in many drawing applications. 
+ * <p>
+ * It contains a collection of Figs, ordered from back to front. Each LayerPerspective contains part of the
+ * overall picture that the user is drawing. 
+ * <p>
+ * LayerPerspective is different from LayerDiagram in that it assumes that you 
+ * are drawing a connected graph that is represented in a GraphModel 
+ * and controlled by a GraphController.
  */
 
 public class LayerPerspective extends LayerDiagram implements GraphListener {
@@ -53,10 +56,8 @@ public class LayerPerspective extends LayerDiagram implements GraphListener {
     /** The space between node FigNodes that are automatically places. */
     public static final int GAP = 16;
 
-    /**
-     * The underlying connected graph to be visualized.
-     */
-    private GraphModel _gm;
+    /** The underlying connected graph to be visualized. */
+    private GraphModel<NetNode, GraphEdge, NetPort> _gm;
 
     private GraphController controller;
 
@@ -65,19 +66,14 @@ public class LayerPerspective extends LayerDiagram implements GraphListener {
     private GraphEdgeRenderer _edgeRenderer = new DefaultGraphEdgeRenderer();
 
     /**
-     * Classes of NetNodes and NetEdges that are to be visualized in this
-     * perspective.
+     * Classes of NetNodes and NetEdges that are to be visualized in this perspective.
      */
     private Vector<Class<?>> _allowedNetClasses = new Vector<Class<?>>();
 
-    /**
-     * Rectangles of where to place nodes that are automatically added.
-     */
+    /** Rectangles of where to place nodes that are automatically added. */
     private Hashtable<Class<?>, Rectangle> _nodeTypeRegions = new Hashtable<Class<?>, Rectangle>();
 
-    /**
-     * The diagram containing this layer.
-     */
+    /** The diagram containing this layer. */
     private Diagram diagram;
 
     private static Log LOG = LogFactory.getLog(LayerPerspective.class);
@@ -86,34 +82,37 @@ public class LayerPerspective extends LayerDiagram implements GraphListener {
     // constructors
 
     /**
-     * Construct a new LayerPerspective with the given name, and add it to the
-     * menu of layers. Needs-More-Work: I have not implemented a menu of layers
+     * Construct a new LayerPerspective with the given name, 
+     * and add it to the menu of layers. 
+     * <p>
+     * Needs-More-Work: I have not implemented a menu of layers
      * yet. I don't know if that is really the right user interface
      */
-    public LayerPerspective(String name, GraphModel gm) {
+    public LayerPerspective(String name, GraphModel<NetNode, GraphEdge, NetPort> gm) {
         super(name);
+
         _gm = gm;
-        controller = null;
         _gm.addGraphEventListener(this);
+        controller = null;
     }
 
-    public LayerPerspective(String name, GraphModel gm,
-            GraphController controller) {
+    public LayerPerspective(String name, GraphModel<NetNode, GraphEdge, NetPort> gm, GraphController c) {
         super(name);
+
         _gm = gm;
-        this.controller = controller;
         _gm.addGraphEventListener(this);
+        controller = c;
     }
 
     // //////////////////////////////////////////////////////////////
     // accessors
 
     /** Reply the GraphModel of the underlying connected graph. */
-    public GraphModel getGraphModel() {
+    public GraphModel<NetNode, GraphEdge, NetPort> getGraphModel() {
         return _gm;
     }
 
-    public void setGraphModel(GraphModel gm) {
+    public void setGraphModel(GraphModel<NetNode, GraphEdge, NetPort> gm) {
         _gm.removeGraphEventListener(this);
         _gm = gm;
         _gm.addGraphEventListener(this);
@@ -144,8 +143,9 @@ public class LayerPerspective extends LayerDiagram implements GraphListener {
         _edgeRenderer = rend;
     }
 
-    /**
-     * Add a node class of NetNodes/NetEdges to what will be shown in this perspective.
+    /** 
+     * Add a node class of NetNodes or NetEdges to what will be 
+     * allowed to be shown in this perspective.
      */
     public void allowNetClass(Class<?> c) {
         _allowedNetClasses.addElement(c);
@@ -256,8 +256,7 @@ public class LayerPerspective extends LayerDiagram implements GraphListener {
                 System.out.println("edge rejected");
                 return;
             }
-            FigEdge newFigEdge = _edgeRenderer.getFigEdgeFor(_gm, this, edge,
-                    null);
+            FigEdge newFigEdge = _edgeRenderer.getFigEdgeFor(_gm, this, edge, null);
             if (newFigEdge != null) {
                 newFigEdge.setLayer(this);
                 add(newFigEdge);
@@ -303,20 +302,24 @@ public class LayerPerspective extends LayerDiagram implements GraphListener {
 
     /**
      * Test to determine if a given NetNode should have a FigNode in this layer.
-     * Normally checks NetNode class against a list of allowable classes. For
-     * more sophisticated rules, override this method. <A
-     * HREF="../features.html#multiple_perspectives">
+     * <p>
+     * Normally checks NetNode class against a list of allowable classes. 
+     * For more sophisticated rules, override this method. 
+     * <A HREF="../features.html#multiple_perspectives">
      * <TT>FEATURE: multiple_perspectives</TT></A>
      */
     public boolean shouldShow(Object obj) {
         if (_allowedNetClasses.size() > 0
                 && !_allowedNetClasses.contains(obj.getClass()))
             return false;
-        if (obj instanceof NetEdge) {
-            if (getPortFig(((NetEdge) obj).getSourcePort()) == null
-                    || getPortFig(((NetEdge) obj).getDestPort()) == null)
-                return false;
-        }
+
+// 0.14 temporarily disable this check to support sandbox
+//        if (obj instanceof NetEdge) {
+//            if (    getPortFig(((NetEdge) obj).getSourcePort()) == null
+//                 || getPortFig(((NetEdge) obj).getDestPort()) == null)
+//                return false;
+//        }
+
         return true;
     }
 

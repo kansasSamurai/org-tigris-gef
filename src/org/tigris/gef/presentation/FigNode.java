@@ -59,6 +59,10 @@ import java.util.List;
 
 /**
  * Class to present a node (such as a NetNode) in a diagram.
+ * 
+ * TODO 0.14 I believe FigNode (via FigGroup) should have a property that makes
+ * it "ungroupable".  This property should be consulted by such things
+ * as CmdUngroup/UngroupAction.
  */
 @SuppressWarnings("deprecation")
 public class FigNode extends FigGroup implements Highlightable, GraphNode, MouseListener {
@@ -72,28 +76,25 @@ public class FigNode extends FigGroup implements Highlightable, GraphNode, Mouse
     private static final ConvolveOp SHADOW_CONVOLVE_OP;
 
     // Fields used in paint() for painting shadows
-    private BufferedImage shadowImage;
     private int cachedWidth = -1;
     private int cachedHeight = -1;
+    private BufferedImage shadowImage;
 
     private List<Connector> connectors = new ArrayList<Connector>();
 
     /**
-     * Set this to force a repaint of the shadow. Normally repainting only
-     * happens when the outside boundaries change (for performance reasons (?)).
-     * In some cases this does not suffice, and you can set this attribute to
-     * force the update.
+     * Set this to force a repaint of the shadow. 
+     * <p>
+     * Normally repainting only happens when the outside boundaries change 
+     * (for performance reasons (?)). In some cases this does not suffice, 
+     * and you can set this attribute to force the update.
      */
     private boolean forceRepaint;
 
-    /**
-     * The intensity value of the shadow color (0-255).
-     */
+    /** The intensity value of the shadow color (0-255). */
     protected static final int SHADOW_COLOR_VALUE = 32;
 
-    /**
-     * The transparency value of the shadow color (0-255).
-     */
+    /** The transparency value of the shadow color (0-255). */
     protected static final int SHADOW_COLOR_ALPHA = 128;
 
     /**
@@ -108,18 +109,13 @@ public class FigNode extends FigGroup implements Highlightable, GraphNode, Mouse
     // //////////////////////////////////////////////////////////////
     // instance variables
 
-    /**
-     * True if you want ports to show when the mouse moves in and be invisible
-     * otherwise.
-     */
+    /** True if you want ports to only show when the mouse moves in */
     protected boolean _blinkPorts = false;
 
     /** True when we want to draw the user's attention to this FigNode. */
     protected boolean _highlight = false;
 
-    /**
-     * A list of FigEdges that need to be rerouted when this FigNode moves.
-     */
+    /** A list of FigEdges that need to be rerouted when this FigNode moves. */
     private ArrayList<FigEdge> figEdges = new ArrayList<FigEdge>();
 
     private int shadowSize = 0;
@@ -145,6 +141,10 @@ public class FigNode extends FigGroup implements Highlightable, GraphNode, Mouse
     // //////////////////////////////////////////////////////////////
     // constructors
 
+    /**
+     * 0.14 - should there be a no-args constructor? i.e shouldn't we ALWAYS
+     * want the model item?
+     */
     public FigNode() {
     }
 
@@ -170,6 +170,7 @@ public class FigNode extends FigGroup implements Highlightable, GraphNode, Mouse
      */
     public FigNode(Object node, Collection<Fig> figs) {
         this(node);
+
         setFigs(figs);
     }
 

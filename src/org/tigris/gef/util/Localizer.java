@@ -47,6 +47,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * This class manages the resource bundle files needed to localize the application. 
+ * <p>
  * All registered resource files are searched in order to find the
  * localization of a given string.
  * 
@@ -177,7 +178,8 @@ public class Localizer {
         if (containsResource(resourceName))
             return;
 
-        Iterator<Locale> iter = resourcesByLocale.keySet().iterator();
+        final Set<Locale> keyset = resourcesByLocale.keySet();
+        Iterator<Locale> iter = keyset.iterator();
         while (iter.hasNext()) {
             addResource(binding, resourceName, (Locale) iter.next(), loader);
         }
@@ -291,22 +293,22 @@ public class Localizer {
                 }
             }
             return key;
-        }
-
-        try {
-            localized = resource.getString(key);
-        } catch (MissingResourceException e) {
-        }
-        if (localized == null) {
-            if (showErrors) {
-                try {
-                    throw new Exception();
-                } catch (Exception e) {
-                    log.warn("Localization failed for key " + key
-                            + " (binding: " + binding + ")", e);
-                }
+        } else {
+            try {
+                localized = resource.getString(key);
+            } catch (MissingResourceException e) {
             }
-            localized = key;
+            if (localized == null) {
+                if (showErrors) {
+                    try {
+                        throw new Exception();
+                    } catch (Exception e) {
+                        log.warn("Localization failed for key " + key
+                                + " (binding: " + binding + ")", e);
+                    }
+                }
+                localized = key;
+            }
         }
 
         return localized;

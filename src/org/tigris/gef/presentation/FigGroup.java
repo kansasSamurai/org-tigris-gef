@@ -283,12 +283,11 @@ public class FigGroup extends Fig {
     public List<Fig> getFigs() {
         return Collections.unmodifiableList(figs);
     }
-    
+
     public List<DiagramElement> getDiagramElements() {
         return Collections.unmodifiableList(new ArrayList<DiagramElement>(figs));
     }
-    
-    
+
     public Font getFont() {
         return font;
     }
@@ -300,18 +299,6 @@ public class FigGroup extends Fig {
     public int getFontSize() {
         return font.getSize();
     }
-
-    // public Color getLineColor() {
-    // if(this.figs.size() == 0)
-    // return super.getLineColor();
-    // return ((Fig)this.figs.get(this.figs.size() - 1)).getLineColor();
-    // }
-    //
-    // public int getLineWidth() {
-    // if(this.figs.size() == 0)
-    // return super.getLineWidth();
-    // return ((Fig)this.figs.get(this.figs.size() - 1)).getLineWidth();
-    // }
 
     /**
      * TODO document Used in SVG.TEE

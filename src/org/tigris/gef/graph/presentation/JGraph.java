@@ -64,6 +64,7 @@ import org.tigris.gef.di.DiagramElement;
 import org.tigris.gef.event.GraphSelectionListener;
 import org.tigris.gef.event.ModeChangeListener;
 import org.tigris.gef.graph.ConnectionConstrainer;
+import org.tigris.gef.graph.GraphEdge;
 import org.tigris.gef.graph.GraphEdgeRenderer;
 import org.tigris.gef.graph.GraphModel;
 import org.tigris.gef.graph.GraphNodeRenderer;
@@ -72,17 +73,19 @@ import org.tigris.gef.presentation.FigText;
 import org.tigris.gef.presentation.TextEditor;
 
 /**
- * JGraph is a Swing component that displays a connected graph and allows
- * interactive editing. In many ways this class serves as a simple front-end to
- * class Editor, and other classes which do the real work.
+ * JGraph is a Swing component that displays an editable, connected graph.
+ * <p>
+ * In many ways this class serves as a simple front-end to the Editor class
+ * and other classes which do the real work.  To that point, note that this
+ * class does not store/use the GraphModel directly; rather, all methods in
+ * this class that "use" a GraphModel object defer to the contained Editor.
+ * 
  */
 
-public class JGraph extends JPanel implements Cloneable, AdjustmentListener,
-        MouseWheelListener {
+public class JGraph extends JPanel 
+    implements Cloneable, AdjustmentListener, MouseWheelListener {
 
-    /**
-     * The Editor object that is being shown in this panel
-     */
+    /** The Editor object that is being shown in this panel */
     private Editor editor;
 
     private JGraphInternalPane drawingPane;
@@ -128,7 +131,7 @@ public class JGraph extends JPanel implements Cloneable, AdjustmentListener,
     }
 
     /** Make a new JGraph with the given GraphModel */
-    public JGraph(GraphModel gm) {
+    public JGraph(GraphModel<NetNode, GraphEdge, NetPort> gm) {
         this(new Editor(gm, null));
     }
 
@@ -356,14 +359,14 @@ public class JGraph extends JPanel implements Cloneable, AdjustmentListener,
     /**
      * Set the GraphModel the Editor is using.
      */
-    public void setGraphModel(GraphModel gm) {
+    public void setGraphModel(GraphModel<NetNode, GraphEdge, NetPort> gm) {
         editor.setGraphModel(gm);
     }
 
     /**
      * Get the GraphModel the Editor is using.
      */
-    public GraphModel getGraphModel() {
+    public GraphModel<?, ?, ?> getGraphModel() {
         return editor.getGraphModel();
     }
 

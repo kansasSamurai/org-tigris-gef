@@ -44,29 +44,32 @@ import org.tigris.gef.presentation.FigPainter;
 /**
  * A Layer like found in many drawing applications. 
  * <p>
- * It contains a collection of Fig's, ordered from back to front. 
+ * It contains a collection of Fig objects, ordered from back to front. 
  * Each LayerDiagram contains part of the overall picture that the user is drawing. 
+ * <p>
  * Needs-More-Work: eventually add a "Layers" menu to the Editor. 
  * <A HREF="../features.html#graph_visualization">
  * <TT>FEATURE: graph_visualization</TT></A>
  */
 public class LayerDiagram extends Layer {
 
-    private List<LayerListener> listeners = new ArrayList<LayerListener>();
-
-    /** The Fig's that are contained in this layer. */
-    private List<Fig> contents = new ArrayList<Fig>();
-
-    /** A counter so that layers have default names like 'One', 'Two', ... */
-    private static int nextLayerNumbered = 1;
-
     private static final Log LOG = LogFactory.getLog(LayerDiagram.class);
 
     private static final long serialVersionUID = 6193765162314431069L;
 
+    /** The Fig objects that are contained in this layer. */
+    private List<Fig> contents = new ArrayList<Fig>();
+
+    /** */
+    private List<LayerListener> listeners = new ArrayList<LayerListener>();
+
+    /** A counter so that layers have default names like 'One', 'Two', ... */
+    private static int nextLayerNumbered = 1;
+
     /**
-     * Construct a new LayerDiagram with a default name and do not put it on the
-     * Layer's menu.
+     * Construct a new LayerDiagram with a default name
+     * <p>
+     * Do not put it on the Layer's menu.
      */
     public LayerDiagram() {
         this("Layer" + numberWordFor(nextLayerNumbered++));
@@ -79,6 +82,7 @@ public class LayerDiagram extends Layer {
      */
     public LayerDiagram(String name) {
         super(name);
+
         setOnMenu(true);
     }
 
